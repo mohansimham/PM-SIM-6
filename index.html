@@ -936,6 +936,7 @@ function PMSimulation() {
     setHasStarted(true);
     track('STARTED', { email, device: getDevice(), attemptNumber: 1 });
     retryFailed();
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
   };
 
   const handleSelect = (idx) => {
@@ -954,6 +955,7 @@ function PMSimulation() {
     if ((currentQ + 1) % 3 === 0) {
       track('PROGRESS', { email, questionNumber: currentQ + 1, totalQuestions: QUESTIONS.length, device: getDevice() });
     }
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
   };
 
   const handleNext = () => {
@@ -964,12 +966,14 @@ function PMSimulation() {
       const finalTier = getTier(finalPct).tier;
       localStorage.setItem(LS('attempted'), '1');
       setShowResults(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       track('COMPLETED', { email, score: finalScore, percentage: finalPct, tier: finalTier, timeTaken, device: getDevice() });
     } else {
       setCurrentQ(currentQ + 1);
       setSelectedIdx(null);
       setShowFeedback(false);
       localStorage.setItem(LS('question'), (currentQ + 1).toString());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
