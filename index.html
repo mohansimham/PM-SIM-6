@@ -899,6 +899,7 @@ function PMSimulation() {
   const [startTime, setStartTime] = useState(null);
   const [attemptCount, setAttemptCount] = useState(SEED);
 
+  // ── Restore session on mount ──────────────────────────────
   useEffect(() => {
     const att = localStorage.getItem(LS('attempted'));
     if (att) { setHasAttempted(true); }
@@ -919,6 +920,13 @@ function PMSimulation() {
     retryFailed();
   }, []);
 
+  // ── Scroll to top whenever the view changes ───────────────
+  // Fires AFTER React has committed the new render to the DOM,
+  // so the scroll always targets the correct new content.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [hasStarted, currentQ, showFeedback, showResults]);
+
   const totalScore = answers.reduce((s, a) => s + a.points, 0);
   const maxScore = QUESTIONS.length * 10;
   const pct = Math.round((totalScore / maxScore) * 100);
@@ -933,10 +941,9 @@ function PMSimulation() {
     const now = Date.now();
     localStorage.setItem(LS('startTime'), now.toString());
     setStartTime(now);
-    setHasStarted(true);
+    setHasStarted(true); // triggers useEffect → scroll to top
     track('STARTED', { email, device: getDevice(), attemptNumber: 1 });
     retryFailed();
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
   };
 
   const handleSelect = (idx) => {
@@ -950,12 +957,11 @@ function PMSimulation() {
     const chosen = q.answers[selectedIdx];
     const newAnswers = [...answers, { questionId: q.id, selectedIdx, points: chosen.points }];
     setAnswers(newAnswers);
-    setShowFeedback(true);
+    setShowFeedback(true); // triggers useEffect → scroll to top
     localStorage.setItem(LS('answers'), JSON.stringify(newAnswers));
     if ((currentQ + 1) % 3 === 0) {
       track('PROGRESS', { email, questionNumber: currentQ + 1, totalQuestions: QUESTIONS.length, device: getDevice() });
     }
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
   };
 
   const handleNext = () => {
@@ -965,15 +971,13 @@ function PMSimulation() {
       const finalPct = Math.round((finalScore / maxScore) * 100);
       const finalTier = getTier(finalPct).tier;
       localStorage.setItem(LS('attempted'), '1');
-      setShowResults(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setShowResults(true); // triggers useEffect → scroll to top
       track('COMPLETED', { email, score: finalScore, percentage: finalPct, tier: finalTier, timeTaken, device: getDevice() });
     } else {
-      setCurrentQ(currentQ + 1);
-      setSelectedIdx(null);
       setShowFeedback(false);
+      setSelectedIdx(null);
+      setCurrentQ(currentQ + 1); // triggers useEffect → scroll to top
       localStorage.setItem(LS('question'), (currentQ + 1).toString());
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
