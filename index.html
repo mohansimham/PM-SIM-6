@@ -34,6 +34,8 @@
     .linkedin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,119,181,0.4); }
     .pulse-dot { animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    /* Offset scrollIntoView targets so sticky header (≈76px) doesn't overlap content */
+    .scroll-target { scroll-margin-top: 84px; }
     @media (max-width: 640px) { .option-card { padding: 12px; } }
   </style>
 </head>
@@ -42,7 +44,7 @@
 <canvas id="badgeCanvas" style="display:none"></canvas>
 
 <script>
-const { useState, useEffect, useCallback } = React;
+const { useState, useEffect, useRef } = React;
 const { createElement: h } = React;
 
 // ─── CONFIG ────────────────────────────────────────────────
@@ -1011,7 +1013,6 @@ function PMSimulation() {
     track('SHARED_LINKEDIN', { email, score: totalScore, percentage: pct, tier: tierData.tier, device: getDevice() });
   };
 
-  const fw = FRAMEWORKS[QUESTIONS[currentQ]?.framework];
   const progressPct = ((currentQ + (showFeedback ? 1 : 0)) / QUESTIONS.length) * 100;
   const currentPoints = answers.reduce((s, a) => s + a.points, 0);
 
@@ -1211,7 +1212,7 @@ function PMSimulation() {
     h('div', { className: 'max-w-3xl mx-auto px-4 py-6' },
 
       // ── topRef lives here — framework box is the first thing seen on each new question ──
-      h('div', { ref: topRef, className: 'framework-box mb-6' },
+      h('div', { ref: topRef, className: 'framework-box mb-6 scroll-target' },
         h('div', { className: 'text-xs font-bold uppercase tracking-widest mb-1', style: { color: fwData.color } }, '⚡ Framework in Focus'),
         h('div', { className: 'font-bold text-white text-lg mb-1' }, fwData.name),
         h('div', { className: 'text-red-300 text-sm font-mono mb-2' }, fwData.formula),
@@ -1259,7 +1260,7 @@ function PMSimulation() {
 
       // ── commentaryRef lives here — scrolled into view after answer selected ──
       // Shows feedback for selected answer + correct answer explanation.
-      showFeedback && h('div', { ref: commentaryRef, className: 'mb-6' },
+      showFeedback && h('div', { ref: commentaryRef, className: 'mb-6 scroll-target' },
         // Selected answer feedback
         h('div', { className: `rounded-2xl p-5 mb-4 border ${selectedIdx === correctIdx ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}` },
           h('div', { className: 'flex items-center gap-2 mb-3' },
