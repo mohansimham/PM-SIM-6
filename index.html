@@ -97,6 +97,101 @@ const FRAMEWORKS = {
   }
 };
 
+// ─── MARKDOWN RENDERER ─────────────────────────────────────
+// Handles **bold**, - bullets, 1. numbered lists, and | markdown tables.
+// Used for scenario data sections and all feedback text.
+
+const renderInline = (text) => {
+  if (!text) return null;
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((p, i) =>
+    p.startsWith('**') && p.endsWith('**')
+      ? h('strong', { key: i, className: 'font-semibold text-gray-900' }, p.slice(2, -2))
+      : (p || null)
+  );
+};
+
+const renderMarkdown = (text) => {
+  if (!text) return null;
+  const lines = text.split('\n');
+  const out = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    if (line.trim() === '') { i++; continue; }
+
+    // ── Markdown table ──────────────────────────────────────
+    if (line.trim().startsWith('|')) {
+      const tblLines = [];
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        tblLines.push(lines[i]);
+        i++;
+      }
+      // Strip separator rows (e.g. |---|---|)
+      const rows = tblLines
+        .filter(l => !/^\s*\|[-:\s|]+\|\s*$/.test(l))
+        .map(l => l.split('|').map(c => c.trim()).filter(Boolean));
+      if (rows.length < 2) continue;
+      const [hdrs, ...data] = rows;
+      out.push(h('div', { key: 'tbl' + i, className: 'overflow-x-auto mb-5 rounded-xl border border-gray-200 shadow-sm' },
+        h('table', { className: 'w-full text-sm border-collapse' },
+          h('thead', null,
+            h('tr', { className: 'bg-gray-800 text-white' },
+              hdrs.map((hdr, j) => h('th', { key: j, className: 'px-3 py-2.5 text-left font-semibold text-xs uppercase tracking-wide whitespace-nowrap' }, hdr))
+            )
+          ),
+          h('tbody', null,
+            data.map((row, ri) =>
+              h('tr', { key: ri, className: ri % 2 === 0 ? 'bg-white' : 'bg-gray-50' },
+                row.map((cell, ci) => h('td', { key: ci, className: 'px-3 py-2.5 border-b border-gray-100 text-gray-700 align-top leading-snug' }, renderInline(cell)))
+              )
+            )
+          )
+        )
+      ));
+      continue;
+    }
+
+    // ── Bullet list ─────────────────────────────────────────
+    if (/^\s*-\s/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\s*-\s/.test(lines[i])) {
+        items.push(lines[i].replace(/^\s*-\s/, ''));
+        i++;
+      }
+      out.push(h('ul', { key: 'ul' + i, className: 'mb-3 space-y-1.5 pl-1' },
+        items.map((item, j) => h('li', { key: j, className: 'flex gap-2 text-sm text-gray-700 leading-relaxed' },
+          h('span', { className: 'text-red-400 mt-0.5 flex-shrink-0' }, '▸'),
+          h('span', { className: 'flex-1' }, renderInline(item))
+        ))
+      ));
+      continue;
+    }
+
+    // ── Numbered list ────────────────────────────────────────
+    if (/^\d+[\.)]\s/.test(line.trimStart())) {
+      const items = [];
+      while (i < lines.length && /^\d+[\.)]\s/.test(lines[i].trimStart())) {
+        items.push(lines[i].replace(/^\d+[\.)]\s*/, ''));
+        i++;
+      }
+      out.push(h('ol', { key: 'ol' + i, className: 'mb-3 space-y-2 pl-1' },
+        items.map((item, j) => h('li', { key: j, className: 'flex gap-2 text-sm text-gray-700 leading-relaxed' },
+          h('span', { className: 'bg-red-100 text-red-600 font-bold rounded w-5 h-5 flex-shrink-0 flex items-center justify-center text-xs mt-0.5' }, j + 1),
+          h('span', { className: 'flex-1' }, renderInline(item))
+        ))
+      ));
+      continue;
+    }
+
+    // ── Normal paragraph ─────────────────────────────────────
+    out.push(h('p', { key: 'p' + i, className: 'mb-2.5 text-sm text-gray-700 leading-relaxed' }, renderInline(line)));
+    i++;
+  }
+  return out;
+};
+
 // ─── QUESTIONS ─────────────────────────────────────────────
 const QUESTIONS = [
   {
@@ -240,16 +335,17 @@ Deepinder Goyal calls a product strategy meeting. "We need a membership programm
 
 Your UX researcher, Priya Nair, has run Kano surveys with 600 users across Bangalore, Mumbai, and Delhi. The findings are on the table:
 
-**Kano Research Results:**
-- **Free delivery on all orders**: 78% rate as "Expected" / Basic Need
-- **1+1 on drinks at restaurants**: 67% rate as "Delighter" (unexpected delight)
-- **1+1 on food at restaurants**: 71% rate as "Delighter"
-- **Priority customer support**: 44% rate as "Performance" (more = more satisfied)
-- **Exclusive restaurant access**: 31% rate as "Delighter", 38% "Indifferent"
-- **Cashback on every order**: 65% rate as "Performance"
-- **Early access to new features**: 22% "Delighter", 51% "Indifferent"
-- **Surprise gifts / mystery boxes**: 18% "Delighter", 62% "Indifferent"
-- **Zero surge pricing guarantee**: 58% rate as "Basic Need"
+| Benefit | Kano Category | Survey Response |
+|---------|--------------|-----------------|
+| Free delivery on all orders | Basic Need | 78% Expected |
+| Zero surge pricing guarantee | Basic Need | 58% Expected |
+| 1+1 on food at restaurants | Delighter | 71% Delighted |
+| 1+1 on drinks at restaurants | Delighter | 67% Delighted |
+| Cashback on every order | Performance | 65% Performance |
+| Priority customer support | Performance | 44% Performance |
+| Exclusive restaurant access | Mixed | 31% Delighter · 38% Indifferent |
+| Early access to new features | Mixed | 22% Delighter · 51% Indifferent |
+| Surprise gifts / mystery boxes | Mixed | 18% Delighter · 62% Indifferent |
 
 Your CFO is watching the budget: the programme must be profitable at ₹299/month membership price. You can include a maximum of 4 benefit categories.
 
@@ -306,28 +402,13 @@ The 62% who are Indifferent to mystery boxes will not pay ₹299/month for them.
     framework: 'rice',
     scenario: `January 2018. Zomato is now valued at $1.1 billion — India's newest unicorn. You have three major product bets on the table for Q2 FY18, but only enough senior engineering bandwidth for ONE: approximately 6 person-months of your best team.
 
-Your CPO has asked you to RICE score all three initiatives and present a recommendation:
+Your CPO has asked you to RICE score all three initiatives and present a recommendation (6 person-months available — capacity for ONE initiative):
 
-**Initiative A: Hyperpure B2B Platform**
-Zomato will supply fresh ingredients to 30,000 restaurants in 10 cities. Platform needs supplier onboarding, inventory management, order tracking, restaurant-facing portal.
-- Reach: 30,000 restaurants (conservative) in Year 1
-- Impact estimate: 2.5× (creates new B2B revenue stream + locks in restaurant partners)
-- Confidence: 60% (no prior B2B product experience)
-- Effort: 6 person-months
-
-**Initiative B: AI-Powered Personalised Recommendations**  
-Machine learning engine to suggest restaurants based on order history, location, time of day, weather. Currently showing generic popularity rankings.
-- Reach: 35 million monthly users
-- Impact estimate: 0.5× (incremental improvement, not step-change)
-- Confidence: 80% (Netflix/Amazon have proven this works)
-- Effort: 4 person-months
-
-**Initiative C: Zomato for Business (Restaurant Analytics Dashboard)**
-Give restaurant partners real-time data on orders, customer ratings, peak hours, competitor benchmarking.
-- Reach: 150,000 restaurant partners
-- Impact estimate: 0.75× (retention tool, not growth driver)
-- Confidence: 85% (restaurants have explicitly requested this)
-- Effort: 3 person-months
+| Initiative | Description | Reach | Impact | Confidence | Effort |
+|-----------|-------------|-------|--------|------------|--------|
+| A: Hyperpure B2B | Fresh ingredients supply to 30,000 restaurants; supplier portal + inventory system | 30,000 restaurants | 2.5× | 60% | 6 months |
+| B: AI Recommendations | ML engine for personalised restaurant suggestions based on history, location, time, weather | 35M users | 0.5× | 80% | 4 months |
+| C: Restaurant Dashboard | Real-time analytics for partners — orders, ratings, peak hours, competitor benchmarks | 150,000 partners | 0.75× | 85% | 3 months |
 
 "RICE score each initiative and tell me what to build," says your CPO.`,
     question: 'Which RICE calculation and prioritisation recommendation is correct?',
@@ -383,22 +464,13 @@ Building all three in parallel with 6 person-months of bandwidth means each gets
 
 The problem: Zomato is still operating in 24 countries. CEO Deepinder Goyal built these international markets over 5 years with enormous effort and pride — UAE, Lebanon, Turkey, Czech Republic, South Africa, and 19 others. Monthly losses in international markets total $12M.
 
-Your international strategy team has three options:
+Your international strategy team has scored three options using ICE criteria:
 
-**Option A: Full International Retreat — Exit all 24 countries, redirect 100% of budget to India**
-- Impact: 9/10 (eliminates $12M/month loss, funds Indian growth significantly)
-- Confidence: 8/10 (clean exit is operationally complex but the financial case is airtight)
-- Ease: 3/10 (extremely complex — legal entity closures, employee layoffs, restaurant partner contracts in 24 jurisdictions)
-
-**Option B: Selective Retreat — Keep UAE + US (profitable), exit remaining 22 countries**
-- Impact: 7/10 (saves ~$10M/month, retains two strategic markets)
-- Confidence: 7/10 (UAE and US show path to profitability within 18 months)
-- Ease: 6/10 (22 country exits still complex but half the legal/HR burden)
-
-**Option C: Double Down Internationally — Raise another ₹500 crore, hire country managers, accelerate**
-- Impact: 4/10 (could capture global food delivery market, but capital markets are souring)
-- Confidence: 3/10 (Uber Eats and Deliveroo have entrenched positions; multiple prior expansion attempts failed)
-- Ease: 2/10 (fundraising in 2019 market conditions is difficult; board is opposed)
+| Option | Strategy | Impact | Confidence | Ease | Key Reasoning |
+|--------|----------|--------|------------|------|---------------|
+| A | Full Retreat — exit all 24 countries, redirect 100% to India | 9/10 | 8/10 | 3/10 | Eliminates $12M/month loss; but 24-jurisdiction legal closures + staff layoffs are extremely complex |
+| B | Selective Retreat — keep UAE + US (profitable), exit 22 others | 7/10 | 7/10 | 6/10 | Saves ~$10M/month; UAE and US show 18-month path to profitability |
+| C | Double Down — raise ₹500 crore, hire country managers, accelerate globally | 4/10 | 3/10 | 2/10 | Capital markets souring; Uber Eats and Deliveroo entrenched; board opposed |
 
 ICE Score each option and recommend.`,
     question: 'Which ICE scoring and strategic recommendation is correct?',
@@ -456,27 +528,15 @@ ICE scores are inherently subjective (they require estimates), but that subjecti
 
 You're in an emergency prioritisation meeting with Deepinder Goyal, CFO Akshant Goyal, and your CTO Gunjan Patidar. The deal must close within 30 days. The question on the table isn't whether to acquire — that's decided. It's: what do we prioritise in the 90 days post-acquisition?
 
-Your team has identified five major integration and growth initiatives. You've estimated Value and Effort for each:
+Your team has assessed five initiatives for the 90-day post-acquisition window:
 
-**Initiative 1: Migrate Uber Eats users to Zomato app**
-Value: Very High (captures 7.5M users, eliminates a competitor app)
-Effort: Very High (technical migration, app sunset, UX redesign, restaurant onboarding)
-
-**Initiative 2: Cross-sell Zomato Gold to Uber Eats users**
-Value: High (Gold converts 12% of eligible users, each paying ₹299/month)
-Effort: Low (in-app notification campaign, existing Gold infrastructure)
-
-**Initiative 3: Renegotiate restaurant commission rates**
-Value: High (current Uber Eats commission is 20%; Zomato standard is 28% — ₹2.4 crore/month revenue opportunity)
-Effort: Medium (relationship-heavy, 35,000 partners across 15 cities)
-
-**Initiative 4: Launch dedicated Zomato-Uber Eats co-branded marketing**
-Value: Low (brand confusion risk during transition; users already know Zomato)
-Effort: High (agency brief, media buying, legal brand approvals)
-
-**Initiative 5: Integrate Uber Eats restaurant reviews into Zomato platform**
-Value: Medium (20M legacy Uber Eats reviews improve Zomato's review density)
-Effort: Very Low (API data migration, standard engineering task)`,
+| # | Initiative | Value | Effort | Detail |
+|---|-----------|-------|--------|--------|
+| 1 | Migrate Uber Eats users to Zomato app | Very High | Very High | 7.5M users captured; but full tech migration, app sunset, UX redesign |
+| 2 | Cross-sell Zomato Gold to Uber Eats users | High | Low | 12% conversion rate × ₹299/month; uses existing Gold infrastructure |
+| 3 | Renegotiate restaurant commission rates | High | Medium | 20% → 28% = ₹2.4 crore/month uplift; 35,000 partner relationships to manage |
+| 4 | Launch co-branded Zomato × Uber Eats marketing | Low | High | Brand confusion risk during transition; users already know Zomato |
+| 5 | Integrate Uber Eats restaurant reviews | Medium | Very Low | 20M legacy reviews improve Zomato density; standard API migration |`,
     question: 'Using the Value vs Effort Matrix, what is the correct prioritisation for the post-acquisition 90 days?',
     answers: [
       {
@@ -598,15 +658,17 @@ You're the PM responsible for the Zomato-Blinkit integration product roadmap. In
 
 Your CEO sends a Slack message: "We need to show investors that 1+1=3 quickly. What do we ship in 6 months that proves the thesis?"
 
-Features under consideration for the integration:
+The integration backlog for your 6-month window (10 person-months available):
 
-- **Unified cart** (order food from Zomato + groceries from Blinkit in one checkout): 4 months engineering
-- **Cross-app install prompts** (Zomato users prompted to install Blinkit, vice versa): 2 weeks
-- **Shared delivery partner network** (Zomato and Blinkit delivery partners interchangeable): 8 months engineering  
-- **Single loyalty programme** (Zomato Gold benefits applicable on Blinkit orders): 3 months
-- **Combined customer data platform** (single user profile across both apps): 5 months
-- **Joint restaurant + grocery combo offers** (₹X off when you order both): 3 weeks
-- **Blinkit dark store insights for restaurant inventory** (restaurants use Blinkit data to forecast demand): 6 months`,
+| Feature | Description | Engineering Effort |
+|---------|-------------|-------------------|
+| Unified cart | Order food from Zomato + groceries from Blinkit in one checkout | 4 months |
+| Cross-app install prompts | Zomato users prompted to install Blinkit, and vice versa | 2 weeks |
+| Shared delivery network | Zomato and Blinkit delivery partners interchangeable across orders | 8 months |
+| Single loyalty programme | Zomato Gold benefits valid on Blinkit orders | 3 months |
+| Combined customer data platform | Single unified user profile across both apps | 5 months |
+| Joint combo offers | ₹X discount when ordering from both apps in the same session | 3 weeks |
+| Dark store inventory insights | Restaurants use Blinkit demand data to forecast ingredient needs | 6 months |`,
     question: 'Apply MoSCoW to identify what Zomato must ship in 6 months to prove the acquisition thesis to investors',
     answers: [
       {
@@ -663,27 +725,15 @@ Deepinder's Slack message was explicit: "show investors that 1+1=3 **quickly.**"
 
 CFO Akshant Goyal calls an emergency product review. "We've identified four product investments that are consuming ₹180 crore per year without clear profitability contribution. We need to Kano-model our product portfolio and decide what to cut, what to maintain, and what to invest in."
 
-Your user research team has run Kano surveys with 1,200 users:
+Your user research team has run Kano surveys with 1,200 users across four product investments:
 
-**Feature A: Free Delivery (Zomato Gold benefit)**
-- 81% rate as "Basic Need" — expected, dissatisfaction if absent
-- Monthly cost: ₹65 crore (subsidy)
-
-**Feature B: 24/7 Live Customer Support Chat**
-- 63% rate as "Performance" — more = more satisfied
-- Monthly cost: ₹18 crore (support agents)
-
-**Feature C: Zomato Legends (Intercity Food Delivery — biryani from Lucknow to Delhi)**
-- 44% "Delighter", 41% "Indifferent"
-- Monthly cost: ₹22 crore (intercity logistics)
-
-**Feature D: Restaurant Health Ratings (partnership with FSSAI)**
-- 67% rate as "Basic Need" — safety is expected
-- Monthly cost: ₹4 crore (data integration)
-
-**Feature E: Zomato Pro (enhanced Gold subscription at ₹599/month)**
-- 38% "Performance", 29% "Delighter", 33% "Indifferent"
-- Monthly revenue: +₹28 crore
+| Feature | Kano Category | Survey Response | Monthly P&L |
+|---------|--------------|-----------------|-------------|
+| A: Free Delivery (Gold benefit) | Basic Need | 81% Expected — dissatisfied if removed | −₹65 crore cost |
+| B: 24/7 Live Customer Support Chat | Performance | 63% Performance — more hours = more satisfied | −₹18 crore cost |
+| C: Zomato Legends (intercity delivery) | Mixed | 44% Delighter · **41% Indifferent** | −₹22 crore cost |
+| D: Restaurant Health Ratings (FSSAI) | Basic Need | 67% Expected — safety is a baseline expectation | −₹4 crore cost |
+| E: Zomato Pro (₹599/month tier) | Performance + Delighter | 38% Performance · 29% Delighter · 33% Indifferent | **+₹28 crore revenue** |
 
 The board wants to cut ₹50 crore/month in product costs without damaging user trust. Apply Kano to identify what to cut, maintain, or invest.`,
     question: 'Which Kano-based recommendation correctly balances cost reduction with user trust?',
@@ -744,27 +794,14 @@ More critically, Zomato Pro generates ₹28 crore/month in revenue. Cutting a re
 
 District was launched in November 2024 after Zomato acquired Paytm's entertainment and ticketing business (Insider.in and TicketNew) for ₹2,048 crore. The vision: a single app for "going out" — restaurant bookings, movies, concerts, live events.
 
-You're the PM for District's Year 1 product strategy. Engineering capacity: 8 person-months/quarter. You have four feature initiatives competing for Q1 FY26 bandwidth:
+You have four features competing for Q1 FY26 bandwidth (8 person-months available):
 
-**Feature A: Live Event Ticketing Integration (Insider.in catalogue in District app)**
-- Impact: 8/10 (Insider has 200+ events/month, ₹80 crore GMV, direct revenue)
-- Confidence: 9/10 (proven product, just needs integration)
-- Ease: 7/10 (API integration of existing platform, not a new build)
-
-**Feature B: AI-Powered "What's On Tonight" Recommendations**  
-- Impact: 7/10 (personalisation increases session time + booking conversion)
-- Confidence: 5/10 (AI recommendations require 6+ months training data to work well)
-- Ease: 3/10 (new ML model, cold start problem with limited District user data)
-
-**Feature C: Restaurant Table Booking with Zomato Review Integration**
-- Impact: 6/10 (leverages Zomato's 50M+ reviews; 340 cities; dining-out market ₹4.2L crore)
-- Confidence: 8/10 (Zomato already had table bookings; this is an enhancement)
-- Ease: 8/10 (review data migration, existing restaurant relationships)
-
-**Feature D: Cross-Platform Loyalty (District events + Zomato food + Blinkit grocery = unified reward points)**
-- Impact: 9/10 (creates lock-in across all Eternal brands; CEO priority)
-- Confidence: 4/10 (multi-brand loyalty programmes historically have low redemption)
-- Ease: 2/10 (requires Blinkit + Zomato engineering coordination; 3 separate tech stacks)`,
+| Feature | Description | Impact | Confidence | Ease | Key Context |
+|---------|-------------|--------|------------|------|-------------|
+| A | **Ticketing** — Insider.in catalogue inside District app | 8/10 | 9/10 | 7/10 | 200+ events/month, ₹80 crore GMV; proven product, API integration only |
+| B | **AI Recommendations** — "What's On Tonight" personalisation | 7/10 | 5/10 | 3/10 | Needs 6+ months of training data; cold-start problem with new app |
+| C | **Restaurant Booking** — table reservations + Zomato review integration | 6/10 | 8/10 | 8/10 | Zomato had prior booking product; 50M reviews + existing relationships |
+| D | **Cross-Platform Loyalty** — District + Zomato + Blinkit unified points (CEO priority) | 9/10 | 4/10 | 2/10 | Spans 3 separate tech stacks; multi-brand loyalty has low historical redemption |`,
     question: 'ICE score all four features and identify the correct prioritisation for District Q1 FY26',
     answers: [
       {
@@ -1224,58 +1261,75 @@ function PMSimulation() {
           h('span', { className: 'bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full' }, q.year),
           h('span', { className: 'text-gray-400 text-xs' }, `Simulation ${q.id}/10`)
         ),
-        h('div', { className: 'text-gray-700 text-sm leading-relaxed whitespace-pre-line mb-4' },
-          q.scenario.split('\n\n').map((para, i) => h('p', { key: i, className: 'mb-3' }, para))
-        ),
+        h('div', { className: 'mb-4' }, renderMarkdown(q.scenario)),
         h('div', { className: 'bg-red-50 border border-red-200 rounded-xl p-4' },
           h('p', { className: 'font-bold text-gray-800 text-base' }, '❓ ' + q.question)
         )
       ),
 
-      // ── Answer options — clicking one immediately shows feedback ──
+      // ── Answer options — A/B/C/D labelled, click = immediate feedback ──
       h('div', { className: 'mb-4' },
         q.answers.map((ans, i) => {
+          const label = String.fromCharCode(65 + i); // A B C D
           let cls = 'option-card';
-          let indicator = null;
           if (showFeedback) {
-            if (i === correctIdx) { cls += ' correct'; indicator = h('span', { className: 'text-green-600 font-bold text-sm ml-2' }, '✓ Best Answer'); }
-            else if (i === selectedIdx && i !== correctIdx) { cls += ' incorrect'; indicator = h('span', { className: 'text-red-500 font-bold text-sm ml-2' }, '✗'); }
-            else { cls += ' opacity-50'; }
+            if (i === correctIdx) cls += ' correct';
+            else if (i === selectedIdx) cls += ' incorrect';
+            else cls += ' opacity-50';
           } else {
             if (i === selectedIdx) cls += ' selected';
           }
+          const mainText = ans.text.split('|')[0].trim();
+          const subText  = ans.text.includes('|') ? ans.text.split('|').slice(1).join(' · ').trim() : null;
           return h('div', { key: i, className: cls, onClick: () => handleSelect(i) },
             h('div', { className: 'flex items-start gap-3' },
-              h('div', { className: `w-6 h-6 rounded-full border-2 flex-shrink-0 mt-0.5 ${i === selectedIdx ? 'border-red-500 bg-red-500' : 'border-gray-300'}`, style: { minWidth: '24px' } }),
-              h('div', { className: 'flex-1' },
-                h('div', { className: 'font-semibold text-gray-800 text-sm leading-snug mb-1' }, ans.text.split('|')[0]),
-                ans.text.includes('|') && h('div', { className: 'text-gray-500 text-xs' }, ans.text.split('|').slice(1).join('|')),
-                indicator
+              // Label pill: A/B/C/D before feedback, radio-style dot after
+              h('div', { className: `flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mt-0.5
+                ${showFeedback && i === correctIdx ? 'bg-green-500 text-white' :
+                  showFeedback && i === selectedIdx ? 'bg-red-500 text-white' :
+                  i === selectedIdx ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-600'}` },
+                label
               ),
-              showFeedback && h('span', { className: `text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 ${ans.points === 10 ? 'bg-green-100 text-green-700' : ans.points >= 7 ? 'bg-blue-100 text-blue-700' : ans.points >= 4 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}` }, `+${ans.points}pts`)
+              h('div', { className: 'flex-1 min-w-0' },
+                h('div', { className: 'font-semibold text-gray-800 text-sm leading-snug' }, renderInline(mainText)),
+                subText && h('div', { className: 'text-gray-500 text-xs mt-1 font-mono' }, subText),
+                showFeedback && i === correctIdx && h('span', { className: 'inline-block mt-1 text-green-600 font-bold text-xs' }, '✓ Best Answer'),
+                showFeedback && i === selectedIdx && i !== correctIdx && h('span', { className: 'inline-block mt-1 text-red-500 font-bold text-xs' }, '✗ Your choice')
+              ),
+              showFeedback && h('span', { className: `text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 ml-2
+                ${ans.points === 10 ? 'bg-green-100 text-green-700' :
+                  ans.points >= 7  ? 'bg-blue-100 text-blue-700' :
+                  ans.points >= 4  ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}` },
+                `+${ans.points}pts`
+              )
             )
           );
         })
       ),
 
-      // ── commentaryRef lives here — scrolled into view after answer selected ──
-      // Shows feedback for selected answer + correct answer explanation.
+      // ── Commentary: rendered after answer click ──────────────
       showFeedback && h('div', { ref: commentaryRef, className: 'mb-6 scroll-target' },
         // Selected answer feedback
         h('div', { className: `rounded-2xl p-5 mb-4 border ${selectedIdx === correctIdx ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}` },
           h('div', { className: 'flex items-center gap-2 mb-3' },
             h('span', { className: 'text-xl' }, selectedIdx === correctIdx ? '✅' : '❌'),
-            h('span', { className: 'font-bold text-gray-800' }, selectedIdx === correctIdx ? 'Correct — ' + q.answers[selectedIdx].text.split('|')[0] : 'Your answer: ' + q.answers[selectedIdx].text.split('|')[0])
+            h('span', { className: 'font-bold text-gray-800 text-sm' },
+              selectedIdx === correctIdx
+                ? `Option ${String.fromCharCode(65 + selectedIdx)} — Correct`
+                : `Option ${String.fromCharCode(65 + selectedIdx)} — Not the best choice`
+            )
           ),
-          h('p', { className: 'text-gray-700 text-sm leading-relaxed' }, q.answers[selectedIdx].feedback)
+          h('div', { className: 'text-sm' }, renderMarkdown(q.answers[selectedIdx].feedback))
         ),
-        // Best answer explanation (only show if they got it wrong)
+        // Best answer explanation (only when wrong)
         selectedIdx !== correctIdx && h('div', { className: 'bg-green-50 border border-green-200 rounded-2xl p-5 mb-4' },
           h('div', { className: 'flex items-center gap-2 mb-3' },
             h('span', { className: 'text-xl' }, '🏆'),
-            h('span', { className: 'font-bold text-gray-800' }, 'Best Answer: ' + q.answers[correctIdx].text.split('|')[0])
+            h('span', { className: 'font-bold text-gray-800 text-sm' },
+              `Best Answer — Option ${String.fromCharCode(65 + correctIdx)}: ${q.answers[correctIdx].text.split('|')[0].trim()}`
+            )
           ),
-          h('p', { className: 'text-gray-700 text-sm leading-relaxed' }, q.answers[correctIdx].feedback)
+          h('div', { className: 'text-sm' }, renderMarkdown(q.answers[correctIdx].feedback))
         ),
         h('button', { onClick: handleNext,
           className: 'w-full py-4 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl text-lg transition-all' },
@@ -1283,7 +1337,7 @@ function PMSimulation() {
         )
       ),
 
-      // ── Prompt before answering ──
+      // ── Pre-answer hint ──
       !showFeedback && h('p', { className: 'text-center text-gray-400 text-sm mt-2' }, '👆 Click an answer to continue')
     )
   );
