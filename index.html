@@ -1,1289 +1,446 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Week 6: Feature Prioritization – Zomato | PM Simulation Series</title>
-  <meta name="description" content="You're Zomato's PM. 16 years of decisions. 10 prioritization challenges. One shot. Can you build India's most loved food app?" />
-  <meta property="og:title" content="Week 6: Feature Prioritization – Can you build Zomato?" />
-  <meta property="og:description" content="Test your RICE, MoSCoW, Kano, ICE and Value vs Effort skills through Zomato's real decisions. 10 scenarios. One attempt." />
-  <meta property="og:type" content="website" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="Week 6: Feature Prioritization – Google Simulation">
+  <meta property="og:description" content="10 real Google decisions. Test your Feature Prioritization skills. One attempt. 100 points.">
+  <meta property="og:type" content="website">
+  <title>Week 6: Google – Feature Prioritization Frameworks | PM Simulation Series</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; background: #fafafa; }
-    .font-display { font-family: 'Playfair Display', serif; }
-    .zomato-red { color: #E23744; }
-    .bg-zomato { background: #E23744; }
-    .border-zomato { border-color: #E23744; }
-    .option-card { transition: all 0.2s ease; cursor: pointer; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 10px; background: white; }
-    .option-card:hover { border-color: #E23744; background: #fff5f5; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(226,55,68,0.12); }
-    .option-card.selected { border-color: #E23744; background: #fff0f1; }
-    .option-card.correct { border-color: #059669; background: #f0fdf4; }
-    .option-card.incorrect { border-color: #dc2626; background: #fef2f2; }
-    .option-card.missed { border-color: #059669; background: #f0fdf4; opacity: 0.7; }
-    .framework-box { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-    .progress-bar-fill { transition: width 0.5s ease; background: linear-gradient(90deg, #E23744, #ff6b6b); }
-    .sim-card { border-radius: 16px; overflow: hidden; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
-    .sim-card:hover { border-color: #E23744; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-    .badge-btn { background: linear-gradient(135deg, #E23744, #c0392b); color: white; border: none; border-radius: 8px; padding: 14px 28px; font-weight: 700; cursor: pointer; font-size: 15px; transition: all 0.2s; }
-    .badge-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(226,55,68,0.4); }
-    .linkedin-btn { background: linear-gradient(135deg, #0077B5, #005885); color: white; border: none; border-radius: 8px; padding: 14px 28px; font-weight: 700; cursor: pointer; font-size: 15px; transition: all 0.2s; }
-    .linkedin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,119,181,0.4); }
-    .pulse-dot { animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-    @media (max-width: 640px) { .option-card { padding: 12px; } }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family:'Inter',sans-serif; background:#f8faff; margin:0; }
+    :root { --g-blue:#4285F4; --g-green:#34A853; --g-red:#EA4335; --g-yellow:#FBBC05; }
+    .slide-in { animation:slideIn 0.35s ease-out; }
+    @keyframes slideIn { from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);} }
+    .option-radio { width:22px;height:22px;min-width:22px;border:2.5px solid #cbd5e1;border-radius:50%;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center; }
+    .option-radio.selected { border-color:#4285F4;background:#4285F4; }
+    .option-radio.selected::after { content:'';width:10px;height:10px;background:white;border-radius:50%; }
+    .option-row { cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:14px 16px;transition:all 0.15s;display:flex;gap:14px;align-items:flex-start;background:white; }
+    .option-row:hover { border-color:#4285F4;background:#f0f4ff; }
+    .option-row.selected { border-color:#4285F4;background:#f0f4ff; }
+    .option-label { font-weight:700;font-size:15px;color:#1e293b; }
+    .option-reason { font-size:13px;color:#64748b;margin-top:3px; }
+    .framework-badge { display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase; }
+    .fb-rice { background:#dbeafe;color:#1d4ed8; }
+    .fb-moscow { background:#dcfce7;color:#166534; }
+    .fb-kano { background:#fef9c3;color:#854d0e; }
+    .fb-ve { background:#fce7f3;color:#9d174d; }
+    .progress-bar { height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden; }
+    .progress-fill { height:100%;border-radius:3px;transition:width 0.4s ease;background:linear-gradient(90deg,#4285F4,#34A853); }
+    .result-card { border-radius:16px;padding:20px;margin-bottom:12px;border-left:4px solid; }
+    .result-correct { background:#f0fdf4;border-color:#34A853; }
+    .result-incorrect { background:#fef2f2;border-color:#EA4335; }
+    .attribution-strip { background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:12px; }
+    .banner-header { background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:14px 20px;text-align:center; }
+    .google-dots { display:flex;gap:5px;justify-content:center;margin-bottom:4px; }
+    .g-dot { width:10px;height:10px;border-radius:50%; }
   </style>
 </head>
 <body>
 <div id="root"></div>
-<canvas id="badgeCanvas" style="display:none"></canvas>
-
 <script>
-const { useState, useEffect, useCallback } = React;
-const { createElement: h } = React;
+const {useState,useEffect,useCallback} = React;
+const h = React.createElement;
 
-// ─── CONFIG ────────────────────────────────────────────────
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwj8aAsvIt0f9PHP0upRoRJlZd7twucp3-UMbn3_eY2FbG9577VbpQDSteyF595uuUe/exec';
-const SIM_NAME = 'Sim 6 – Zomato: Feature Prioritization Frameworks';
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbyNdCLxjacWS_ORQztlBKVk02N4f_g9ypipCgmw68LKba4MyIBsJrG6p-wJdF9e741w/exec";
 const WEEK = 6;
-const SEED = 289;
-const LS = (k) => `pmSim_w${WEEK}_${k}`;
+const COMPANY = "Google";
+const TOPIC = "Feature Prioritization Frameworks";
+const TOTAL_Q = 10;
 
-// ─── SIMULATION CATALOG ────────────────────────────────────
-const CATALOG = [
-  { week:1, company:'Airbnb', topic:'PM Fundamentals', emoji:'🏠', color:'#FF5A5F', url:'https://cxosimulabs.github.io/pm-simulations/week1-airbnb-pm-fundamentals.html' },
-  { week:2, company:'Spotify', topic:'Strategic Thinking', emoji:'🎵', color:'#1DB954', url:'https://cxosimulabs.github.io/pm-simulations/week2-spotify-strategic-thinking.html' },
-  { week:3, company:'Netflix', topic:'Customer Discovery', emoji:'🎬', color:'#E50914', url:'https://cxosimulabs.github.io/pm-simulations/week3-netflix-customer-discovery.html' },
-  { week:4, company:'Amazon Prime', topic:'Prioritisation Frameworks', emoji:'📦', color:'#FF9900', url:'https://cxosimulabs.github.io/pm-simulations/week4-amazon-prioritization.html' },
-  { week:5, company:'Uber', topic:'Problem Definition', emoji:'🚗', color:'#000000', url:'https://cxosimulabs.github.io/pm-simulations/week5-uber-problem-definition.html' },
-];
-
-// ─── FRAMEWORKS ────────────────────────────────────────────
-const FRAMEWORKS = {
-  rice: {
-    name: 'RICE Scoring',
-    formula: 'RICE = (Reach × Impact × Confidence) ÷ Effort',
-    description: 'Quantifies feature priority. Reach = users/quarter, Impact = 0.25–3×, Confidence = %, Effort = person-months. Higher score = higher priority.',
-    color: '#7c3aed'
-  },
-  moscow: {
-    name: 'MoSCoW Method',
-    formula: 'Must Have | Should Have | Could Have | Won\'t Have',
-    description: 'Categorises features by criticality. Must-Haves are non-negotiable. Should-Haves add value. Could-Haves are nice-to-have. Won\'t-Haves are deferred.',
-    color: '#0891b2'
-  },
-  kano: {
-    name: 'Kano Model',
-    formula: 'Basic Needs | Performance | Delighters | Indifferent | Reverse',
-    description: 'Maps features to user satisfaction. Basic Needs cause dissatisfaction if absent. Performance scales linearly. Delighters delight without expectation.',
-    color: '#059669'
-  },
-  ice: {
-    name: 'ICE Scoring',
-    formula: 'ICE = Impact × Confidence × Ease (each 1-10)',
-    description: 'Rapid scoring for early-stage decisions. Impact = potential upside, Confidence = certainty of success, Ease = how simple to execute. Max = 1000.',
-    color: '#d97706'
-  },
-  voe: {
-    name: 'Value vs Effort Matrix',
-    formula: '4 Quadrants: Quick Wins | Big Bets | Fill-Ins | Time Wasters',
-    description: 'Plots features on a 2×2 grid. Quick Wins (high value, low effort) = do first. Big Bets (high value, high effort) = plan carefully. Time Wasters = avoid.',
-    color: '#E23744'
-  }
-};
-
-// ─── QUESTIONS ─────────────────────────────────────────────
 const QUESTIONS = [
   {
-    id: 1,
-    year: 'November 2014',
-    framework: 'voe',
-    scenario: `The war room at Zomato's Gurgaon office is tense. It's November 2014, and Deepinder Goyal has just returned from a board meeting with a sobering message: Swiggy launched food delivery in Bangalore six months ago, and their GMV is doubling every 45 days. Zomato, meanwhile, is a restaurant discovery platform operating in 22 countries with $31M in annual ad revenue — but zero delivery capability.
-
-Your growth data tells a hard story. User sessions are up 34% year-on-year, but time-spent-per-session is falling. Users are discovering restaurants on Zomato, then switching to rival apps to order. The leakage rate is estimated at 58%.
-
-"We have four major initiatives on the table," says your CPO Tanmay Bhatt. He lists them on the whiteboard:
-
-1. **Build in-house food delivery** — 18-month build, 800+ delivery partners, ₹140 crore capex, but full ecosystem control
-2. **Revamp restaurant discovery UI** — 4-month build, new filters, personalisation engine, ₹12 crore cost
-3. **Launch restaurant advertising platform v2** — 3-month build, premium placements, estimated ₹8 crore revenue uplift/year
-4. **International expansion to Southeast Asia** — 6-month market entry, ₹60 crore investment, 5 new cities
-
-Goyal turns to you: "We can prioritise two of these. Use a Value vs Effort matrix. Which two do we invest in?"`,
-    question: 'Using the Value vs Effort Matrix, which two initiatives should Zomato prioritise in late 2014?',
-    answers: [
-      {
-        text: 'Build in-house food delivery + Launch restaurant advertising platform v2',
-        points: 10,
-        feedback: `Correct application of Value vs Effort. Food delivery is the high-value, high-effort "Big Bet" — the ₹140 crore investment with full ecosystem control is the strategic move that will define Zomato's next decade. Advertising platform v2 is the "Quick Win" — only 3 months, ₹8 crore uplift with existing restaurant relationships. Together they protect present revenue while building future moat.
-
-**What Zomato actually did:** Launched food delivery in 2015, initially partnering with restaurant delivery staff before building its own fleet. The advertising platform remained a core revenue stream through IPO. This combination generated the dual flywheel of delivery commission + ad revenue.
-
-**The Value vs Effort lesson:** In 2×2 prioritisation, you always execute Quick Wins immediately (ad platform) and schedule your Big Bet carefully (delivery). International expansion was a Time Waster — Zomato had to exit 9 countries in 2015-16 to fund its Indian delivery push.`
-      },
-      {
-        text: 'Revamp restaurant discovery UI + Launch restaurant advertising platform v2',
-        points: 5,
-        feedback: `Both are in the "Quick Wins" quadrant — low effort, moderate value — but this combination is tactically safe while being strategically blind. You'd improve the product experience while collecting ad revenue, but without addressing the fundamental 58% session leakage to delivery competitors.
-
-By 2016, Swiggy had crossed ₹50 crore in monthly GMV. A discovery UI revamp wouldn't have stopped that tide. Advertising revenue is a defensive play, not a growth engine.
-
-**The Value vs Effort lesson:** When a high-value Big Bet is on the table (delivery), avoiding it to execute two Quick Wins is a false economy. Your 2×2 matrix must always weigh competitive urgency alongside effort. Quick Wins + Quick Wins = incrementalism.`
-      },
-      {
-        text: 'International expansion to Southeast Asia + Build in-house food delivery',
-        points: 3,
-        feedback: `This pairs a Big Bet with a Time Waster — a critical prioritisation error. International expansion in late 2014 would have diluted engineering bandwidth exactly when the India delivery battle needed every rupee of focus.
-
-Zomato's board had already warned about burn rate. Deploying ₹200 crore across two capital-heavy initiatives simultaneously was not viable on ₹31M revenue.
-
-**What happened instead:** Zomato actually DID expand internationally (including US via Urbanspoon acquisition in 2015) but then spent 2015-2016 unwinding those markets to fund Indian delivery infrastructure — a painful and expensive reversal.
-
-**The Value vs Effort lesson:** High effort + high value (delivery) + high effort + low value (international) = bankruptcy risk. The matrix exists precisely to prevent this combination.`
-      },
-      {
-        text: 'Revamp restaurant discovery UI + International expansion to Southeast Asia',
-        points: 1,
-        feedback: `This is the worst possible combination from the 2×2 matrix: a Fill-In (discovery UI — low value in a delivery-first market) paired with a Time Waster (international expansion with no delivery moat).
-
-The 58% session leakage tells you users want delivery, not better restaurant photos. Investing in discovery improvement while ignoring delivery is solving the wrong problem.
-
-**The Value vs Effort lesson:** Before building the 2×2 matrix, always validate your value assumptions. Ask: "Would this initiative address the primary user pain point?" A UI revamp that doesn't stop leakage has near-zero value in 2014's competitive context. Time Wasters + Fill-Ins = organisational stagnation.`
-      }
-    ]
+    id:1,
+    framework:"RICE",
+    fbClass:"fb-rice",
+    year:2007,
+    context:"Google is scaling Gmail from invite-only beta to full public launch. Engineering has bandwidth for ONE major feature push before launch. The team debates: (A) Universal search across email, contacts & Drive files — massive dev effort, high wow-factor, used daily by all users. (B) Priority Inbox using ML to auto-sort important emails — moderate effort, solves real pain, but algo needs tuning.",
+    question:"Using RICE scoring (Reach × Impact × Confidence ÷ Effort), which feature should Google prioritize for Gmail's public launch?",
+    answers:[
+      {label:"A – Universal search across email, contacts & Drive", reason:"Reach: 100% of users. Impact: 3x (massive daily utility). Confidence: 90% (search is Google's core strength). Effort: 8. RICE ≈ 33.8", correct:true},
+      {label:"B – Priority Inbox ML sorting", reason:"Reach: 60% of power users. Impact: 2x. Confidence: 70% (algo risk). Effort: 7. RICE ≈ 12.0 — lower than search"},
+      {label:"C – Rich HTML email composer", reason:"Reach: 80%. Impact: 1.5x. Confidence: 95%. Effort: 5. RICE ≈ 22.8 — solid but not transformational"},
+      {label:"D – Google Talk integration inside Gmail", reason:"Reach: 40%. Impact: 2x. Confidence: 80%. Effort: 6. RICE ≈ 10.7 — limited reach hurts the score"}
+    ],
+    outcome:"Google shipped universal search at Gmail launch in April 2007. It became a defining differentiator — users could search 15GB+ of email instantly. Priority Inbox came in 2010 after the ML model matured. The RICE calculus was clear: search had maximum reach and Google's highest confidence domain.",
+    source:"Re/code, Steven Levy 'In The Plex' (2011)"
   },
   {
-    id: 2,
-    year: 'March 2015',
-    framework: 'moscow',
-    scenario: `It's March 2015. Zomato has committed to launching food delivery in Delhi-NCR within 90 days. You're the PM leading the feature definition sprint. Your engineering team has exactly 12 person-months of capacity — enough to ship roughly 60% of the feature wishlist.
-
-Your product designer, Aditi Sharma, has mocked up 18 features after user interviews with 200 customers. The engineering lead, Rohan Mehta, has estimated effort for each. The clock is ticking — Swiggy is now in 3 cities and Foodpanda is advertising aggressively.
-
-"We need to be disciplined," Aditi says. "What are the absolute non-negotiables for Day 1 launch vs what can wait for Version 2?"
-
-The feature list includes:
-- Real-time GPS order tracking
-- Cash on delivery payment
-- Online payment (cards/wallets)
-- Restaurant menu with photos
-- Estimated delivery time display
-- Order confirmation SMS
-- Customer ratings for delivery experience
-- In-app chat with delivery partner
-- Scheduled order (order now, deliver later)
-- Dark mode UI
-- Loyalty points / rewards system
-- Multiple delivery addresses saved
-- Order history and reorder button
-- Refund/cancellation flow
-- Live customer support chat
-- Push notifications (order updates)
-- Social sharing of orders
-- Restaurant preparation time estimates
-
-You call a MoSCoW workshop. The team must sort these 18 features into Must / Should / Could / Won't for v1.`,
-    question: 'Which feature set correctly applies MoSCoW for Zomato\'s food delivery v1 launch?',
-    answers: [
-      {
-        text: 'Must: GPS tracking, cash payment, menu with photos, delivery time, SMS confirmation, refund/cancellation, push notifications | Should: Online payment, order history, multiple addresses | Could: Loyalty points, live support chat | Won\'t: Dark mode, social sharing, scheduled orders, in-app chat',
-        points: 10,
-        feedback: `Textbook MoSCoW application. Your Must-Haves are the minimum viable delivery experience: users need to know where their order is (GPS), pay (cash dominates India at 80% of transactions in 2015), understand what they're ordering (menu/photos), and trust the system (SMS + refund flow). Without any single one of these, users can't trust or complete the transaction.
-
-Online payment is a Should — valuable but cash dominates, and you can't ship without cash support anyway. Loyalty points and chat are Coulds — competitive differentiators but not blockers.
-
-**What Zomato actually shipped in v1:** Exactly this profile. Real-time GPS and COD were available at launch. Online payment followed within 60 days. Loyalty (Zomato Gold) didn't launch until 2017 — 2 years later.
-
-**The MoSCoW lesson:** Must-Haves fail the "launch without this" test. If GPS tracking fails, users lose trust permanently. If dark mode is absent, users still order. That asymmetry defines Must vs Could.`
-      },
-      {
-        text: 'Must: Everything online-first (GPS, online payment, loyalty, live chat, dark mode, social sharing) | Should: Cash payment | Could: SMS, refunds | Won\'t: Scheduled orders',
-        points: 2,
-        feedback: `Severe MoSCoW misapplication. This list treats loyalty and dark mode as Must-Haves while demoting cash payment to Should. In 2015 India, 80% of e-commerce transactions were cash-on-delivery. Making COD a "Should" would have eliminated your largest customer segment before you launched.
-
-Dark mode as a Must-Have on a 90-day sprint is a resource allocation disaster — it consumes engineering cycles that should go toward core transaction flows.
-
-**The MoSCoW lesson:** Must-Haves must be validated by user data, not feature desirability. Ask: "What percentage of users would not use the product without this?" If that number is below 50%, it's not a Must-Have. Loyalty features satisfy approximately 15-20% of first-time users but are irrelevant to the first order.`
-      },
-      {
-        text: 'Must: GPS tracking, online payment, loyalty points, order history, multiple addresses | Should: Cash payment, SMS confirmation, refund flow | Could: Menu photos, push notifications | Won\'t: Dark mode',
-        points: 3,
-        feedback: `This prioritisation reveals a classic PM bias: building for power users (who want loyalty, multiple addresses, order history) while neglecting first-time user trust signals (SMS confirmation, refund flow demoted to Should).
-
-In 2015, Zomato's delivery user was often placing their first-ever online food order. For these users, SMS confirmation was a critical trust signal — "did my order go through?" — not a Should. Demoting refund/cancellation to Should is particularly dangerous: a bad first refund experience would destroy word-of-mouth in a market where brand reputation was being built.
-
-**The MoSCoW lesson:** MoSCoW should be applied from the perspective of your least-sophisticated user, not your most engaged one. Power user features (multiple addresses, order history) serve existing users; trust signals (SMS, refunds) convert new users. v1 must acquire, not retain.`
-      },
-      {
-        text: 'Must: All 18 features | Should: None | Could: None | Won\'t: None',
-        points: 1,
-        feedback: `This is the "feature committee" anti-pattern — everyone's priority is Must-Have because everyone's afraid to deprioritise their own idea. With 18 Must-Haves and 12 person-months of capacity, your launch date moves from June 2015 to mid-2016. By then, Swiggy would be in 6 cities with a 12-month head start.
-
-The MoSCoW framework exists precisely to break this deadlock. When everything is Must-Have, nothing is prioritised.
-
-**The MoSCoW lesson:** If you're unable to classify any feature as "Won't Have this version," your MoSCoW exercise has failed. A useful rule: at least 20% of your backlog should be Won't-Have in v1. The pain of saying "won't" now prevents the catastrophe of missing launch and losing market position entirely.`
-      }
-    ]
+    id:2,
+    framework:"MoSCoW",
+    fbClass:"fb-moscow",
+    year:2009,
+    context:"Google Maps v4.0 is being prioritized for Android launch. The team has 4 features competing for the Must Have slot: (A) Turn-by-turn voice navigation (free, replacing $100 GPS units). (B) Street View expansion to 50 new cities. (C) Real-time traffic from crowd-sourced GPS data. (D) Transit directions for public transport.",
+    question:"Using MoSCoW prioritization, which feature belongs in 'Must Have' for the Android Maps 4.0 launch?",
+    answers:[
+      {label:"A – Turn-by-turn voice navigation (free GPS killer)", reason:"Must Have: Directly disrupts a $3B hardware market, enables Android to leapfrog iPhone Maps, irreplaceable by workaround. Google shipped this free in Oct 2009.", correct:true},
+      {label:"B – Street View expansion to 50 new cities", reason:"Should Have: Valuable engagement feature but users can still navigate without it. Doesn't change Android's competitive position vs iPhone."},
+      {label:"C – Real-time crowd-sourced traffic", reason:"Should Have: High value but requires data density — needs user base first. Waze acquisition (2013) later solved this at scale."},
+      {label:"D – Transit directions for public transport", reason:"Could Have: Niche use case (urban markets only). Useful but not a flagship differentiator for launch."}
+    ],
+    outcome:"Turn-by-turn navigation launched free with Android 2.0 in October 2009. It wiped out TomTom's stock by 20% overnight. MoSCoW logic was decisive: it was the one feature that couldn't be approximated and most directly advanced Google's mobile strategy.",
+    source:"TechCrunch Oct 2009; Bloomberg TomTom impact analysis"
   },
   {
-    id: 3,
-    year: 'August 2017',
-    framework: 'kano',
-    scenario: `August 2017. Zomato has 35 million monthly users, ₹466 crore in revenue, and a problem: user loyalty is eroding. After delivering an order, users are just as likely to open Swiggy for their next order as Zomato. The Net Promoter Score has stagnated at 42.
-
-Deepinder Goyal calls a product strategy meeting. "We need a membership programme. Something that gives users a reason to stay with us and order more."
-
-Your UX researcher, Priya Nair, has run Kano surveys with 600 users across Bangalore, Mumbai, and Delhi. The findings are on the table:
-
-**Kano Research Results:**
-- **Free delivery on all orders**: 78% rate as "Expected" / Basic Need
-- **1+1 on drinks at restaurants**: 67% rate as "Delighter" (unexpected delight)
-- **1+1 on food at restaurants**: 71% rate as "Delighter"
-- **Priority customer support**: 44% rate as "Performance" (more = more satisfied)
-- **Exclusive restaurant access**: 31% rate as "Delighter", 38% "Indifferent"
-- **Cashback on every order**: 65% rate as "Performance"
-- **Early access to new features**: 22% "Delighter", 51% "Indifferent"
-- **Surprise gifts / mystery boxes**: 18% "Delighter", 62% "Indifferent"
-- **Zero surge pricing guarantee**: 58% rate as "Basic Need"
-
-Your CFO is watching the budget: the programme must be profitable at ₹299/month membership price. You can include a maximum of 4 benefit categories.
-
-"What do we include in Zomato Gold?" Deepinder asks.`,
-    question: 'Based on the Kano analysis, which 4-benefit combination best designs Zomato Gold?',
-    answers: [
-      {
-        text: 'Zero surge pricing (Basic Need) + 1+1 drinks at restaurants (Delighter) + 1+1 food at restaurants (Delighter) + Cashback on orders (Performance)',
-        points: 10,
-        feedback: `Masterclass in Kano application. You've covered all three critical Kano tiers:
-
-**Basic Need (surge pricing):** 58% of users expect this. Without it, Gold members would experience dissatisfaction every time surge pricing kicks in — the "why am I paying ₹299 if I still get surged?" complaint. Basic Needs must be included or you generate active dissatisfaction.
-
-**Delighters (1+1 on food + drinks):** These features create genuine delight because users don't expect a delivery app to give them dining benefits. The 71%/67% delight response means these become the primary acquisition driver — "Zomato Gold gets you free drinks at restaurants" is a shareable, talkable benefit.
-
-**Performance (cashback):** Linear satisfaction scaling — more cashback = more happy. This satisfies the value-seeking user segment and creates habitual ordering behaviour.
-
-**What Zomato actually launched:** Gold debuted with exactly 1+1 dining benefits (food + drinks) at partner restaurants. It became Zomato's fastest-growing product, reaching 1.5 million subscribers in 18 months.`
-      },
-      {
-        text: 'Early access to features (Delighter) + Surprise gifts (Delighter) + Priority support (Performance) + Exclusive restaurant access (Delighter)',
-        points: 3,
-        feedback: `This selection ignores your Kano data's most important signal: 51% are "Indifferent" to early feature access and 62% are "Indifferent" to mystery boxes. Selecting three Delighters where the majority of users are Indifferent means these benefits won't drive subscription.
-
-The Kano model warns explicitly: Indifferent features consume budget without generating satisfaction. You've allocated 3 of 4 benefit slots to features that the majority of surveyed users simply don't care about.
-
-**The Kano lesson:** Not all Delighters are equal. A Delighter that 67% of users genuinely delight in (1+1 drinks) is fundamentally different from a "Delighter" that only 18% care about (mystery boxes). Always weight Delighters by the percentage who find them delightful, not just whether they're classified as Delighters.`
-      },
-      {
-        text: 'Free delivery on all orders (Basic Need) + Zero surge pricing (Basic Need) + Priority support (Performance) + Cashback on orders (Performance)',
-        points: 5,
-        feedback: `Technically solid, but this selection misses Delighters entirely — a critical Kano design flaw. You've built a membership that satisfies expectations (Basic Needs) and scales satisfaction linearly (Performance), but never surprises or delights.
-
-The problem: a membership built entirely on Basic Needs and Performance features is easily matched by competitors. If Swiggy offers free delivery too, your Gold loses its uniqueness. Delighters are the features that create emotional lock-in and word-of-mouth.
-
-**What you'd lose:** The 1+1 dining benefit is what made Zomato Gold a cultural phenomenon — friends convincing friends to subscribe because "you get free drinks at restaurants." That virality cannot be replicated by free delivery.
-
-**The Kano lesson:** A strong subscription product needs all three tiers — Basic Needs to prevent dissatisfaction, Performance to scale satisfaction, Delighters to create advocacy. Benefits only from two tiers will underperform.`
-      },
-      {
-        text: 'Exclusive restaurant access (Delighter) + Surprise gifts (Delighter) + Early access to features (Delighter) + Free delivery (Basic Need)',
-        points: 1,
-        feedback: `Three Delighters with the lowest Kano response rates (31%, 18%, 22%) plus one Basic Need. This is the worst possible Kano outcome: you've selected the features with the highest "Indifferent" ratings as your premium value proposition.
-
-The 62% who are Indifferent to mystery boxes will not pay ₹299/month for them. The 51% Indifferent to early feature access will cancel after one billing cycle. These aren't bad features — they're just not compelling enough to drive subscription revenue.
-
-**The Kano lesson:** Always sort your Delighters by the magnitude of the delight response, not just whether they appear in the Delighter category. 1+1 food (71% delight) > surprise gifts (18% delight) by 4× — this ratio should directly influence your benefit selection.`
-      }
-    ]
+    id:3,
+    framework:"Kano Model",
+    fbClass:"fb-kano",
+    year:2011,
+    context:"Google+ is launching to challenge Facebook. The product team applies Kano analysis to feature selection. Debate: (A) Circles — nuanced friend-grouping for privacy control. (B) Hangouts — group video chat up to 10 people free. (C) Sparks — interest-based content recommendation. (D) Full Facebook-style news feed with likes & comments.",
+    question:"Applying Kano Model analysis, which feature is the 'Delighter' (unexpected, high satisfaction) that Google should lead with?",
+    answers:[
+      {label:"A – Circles privacy control", reason:"Performance feature: Users want privacy control, satisfaction scales with how well it works. Important but expected given Facebook's privacy PR disasters."},
+      {label:"B – Hangouts group video chat (free, 10 people)", reason:"Delighter: Free 10-person HD video chat was completely unexpected in 2011. Skype charged for multi-party video. This created genuine surprise-delight and drove 10M signups in 2 weeks.", correct:true},
+      {label:"C – Sparks interest recommendations", reason:"Basic/Must-be: Generic content discovery — expected of any social platform. Absence would disappoint but presence doesn't excite."},
+      {label:"D – News feed with likes and comments", reason:"Basic/Must-be: Table stakes for any social network post-Facebook. Its absence would be a defect, not a differentiator."}
+    ],
+    outcome:"Google+ launched June 2011 with Hangouts as its headline feature. 10M users in 2 weeks. Hangouts delivered the Kano 'Delighter' — unexpected, technically impressive, free where competitors charged. Circles was the performance feature. The news feed was table stakes.",
+    source:"Google Blog June 2011; Vic Gundotra Google I/O keynote"
   },
   {
-    id: 4,
-    year: 'January 2018',
-    framework: 'rice',
-    scenario: `January 2018. Zomato is now valued at $1.1 billion — India's newest unicorn. You have three major product bets on the table for Q2 FY18, but only enough senior engineering bandwidth for ONE: approximately 6 person-months of your best team.
-
-Your CPO has asked you to RICE score all three initiatives and present a recommendation:
-
-**Initiative A: Hyperpure B2B Platform**
-Zomato will supply fresh ingredients to 30,000 restaurants in 10 cities. Platform needs supplier onboarding, inventory management, order tracking, restaurant-facing portal.
-- Reach: 30,000 restaurants (conservative) in Year 1
-- Impact estimate: 2.5× (creates new B2B revenue stream + locks in restaurant partners)
-- Confidence: 60% (no prior B2B product experience)
-- Effort: 6 person-months
-
-**Initiative B: AI-Powered Personalised Recommendations**  
-Machine learning engine to suggest restaurants based on order history, location, time of day, weather. Currently showing generic popularity rankings.
-- Reach: 35 million monthly users
-- Impact estimate: 0.5× (incremental improvement, not step-change)
-- Confidence: 80% (Netflix/Amazon have proven this works)
-- Effort: 4 person-months
-
-**Initiative C: Zomato for Business (Restaurant Analytics Dashboard)**
-Give restaurant partners real-time data on orders, customer ratings, peak hours, competitor benchmarking.
-- Reach: 150,000 restaurant partners
-- Impact estimate: 0.75× (retention tool, not growth driver)
-- Confidence: 85% (restaurants have explicitly requested this)
-- Effort: 3 person-months
-
-"RICE score each initiative and tell me what to build," says your CPO.`,
-    question: 'Which RICE calculation and prioritisation recommendation is correct?',
-    answers: [
-      {
-        text: 'Hyperpure: (30,000 × 2.5 × 0.60) ÷ 6 = 7,500 | Recommendations: (35M × 0.5 × 0.80) ÷ 4 = 3,500,000 | Restaurant Dashboard: (150,000 × 0.75 × 0.85) ÷ 3 = 31,875 | Build Personalised Recommendations',
-        points: 10,
-        feedback: `Perfect RICE execution. The calculations are correct:
-- Hyperpure: (30,000 × 2.5 × 0.60) ÷ 6 = **7,500**
-- Recommendations: (35,000,000 × 0.5 × 0.80) ÷ 4 = **3,500,000**
-- Restaurant Dashboard: (150,000 × 0.75 × 0.85) ÷ 3 = **31,875**
-
-The RICE score for AI recommendations (3.5M) dwarfs Hyperpure (7,500) and the dashboard (31,875). Even with a conservative 0.5× impact, the sheer reach of 35 million users makes this the highest-RICE initiative.
-
-**What Zomato built:** Zomato's personalisation engine (launched through 2018) drove measurable improvements — users who received personalised recommendations ordered 22% more frequently. Hyperpure was eventually built (launching H2 2018) but required a separate dedicated team, not diverting core product bandwidth.
-
-**The RICE lesson:** Reach is the multiplier that can make low-impact initiatives outscore high-impact niche ones. But always sanity-check: is 0.5× impact for recommendations actually correct? If personalisation could be 1× (order frequency doubles), the score becomes 7M — even more dominant.`
-      },
-      {
-        text: 'Hyperpure has highest strategic value. Despite lower RICE score, B2B moat justifies prioritisation. Build Hyperpure.',
-        points: 4,
-        feedback: `This is a common PM trap: overriding the RICE framework with "strategic narrative" when the numbers don't support it. RICE exists precisely to counter our tendency to justify the most exciting or novel initiative over the highest-impact one.
-
-If you genuinely believe Hyperpure's strategic moat justifies prioritisation, you should adjust your confidence score (60% seems low for a CEO-sponsored initiative with restaurant relationships already in place) or recalibrate the impact score. But simply overriding the framework because you prefer the outcome destroys the framework's credibility for future decisions.
-
-**The RICE lesson:** If you disagree with RICE outputs, challenge the inputs — don't ignore the outputs. "Strategic importance" should be captured in the Impact (×) score, not as a backdoor override. A team that bypasses its own scoring system will stop using it within 3 sprint cycles.`
-      },
-      {
-        text: 'Restaurant Dashboard: (150,000 × 0.75 × 0.85) ÷ 3 = 31,875 — highest RICE, build this first',
-        points: 2,
-        feedback: `The calculation for the dashboard (31,875) is correct in isolation, but you've neglected to calculate RICE for the other two initiatives before declaring it the winner. A RICE framework requires comparative scoring — you cannot conclude "highest RICE" by scoring only one initiative.
-
-When all three are scored, the Personalised Recommendations engine (3,500,000) is 110× higher than the restaurant dashboard. This is the danger of partial RICE analysis: cherry-picking the calculation that confirms a pre-existing preference.
-
-**The RICE lesson:** RICE is only valid as a comparative tool. Always score all competing initiatives before ranking. The framework's value comes from the comparison, not the absolute number — a RICE score of 31,875 means nothing in isolation, but means "third priority" when compared to 3,500,000 and 7,500.`
-      },
-      {
-        text: 'All three have equal priority — RICE scores are too close to differentiate. Build all three in parallel.',
-        points: 1,
-        feedback: `The RICE scores (3,500,000 vs 31,875 vs 7,500) are not remotely close — they differ by 110× and 467× respectively. Declaring them "too close to differentiate" indicates either a calculation error or a misunderstanding of the framework.
-
-Building all three in parallel with 6 person-months of bandwidth means each gets 2 person-months — insufficient to ship any of them at quality. The result: three half-built initiatives, none shipped, deadline missed, and three sets of unhappy stakeholders.
-
-**The RICE lesson:** RICE produces a ranked list, not a "build everything" mandate. When one initiative has a RICE score 100× higher than competitors, that's a strong signal to concentrate resources. Resource concentration almost always outperforms resource dilution in early-stage product development.`
-      }
-    ]
+    id:4,
+    framework:"Value vs Effort",
+    fbClass:"fb-ve",
+    year:2012,
+    context:"Google Maps for iOS is being rebuilt after Apple's disastrous Maps launch gave Google a massive opportunity. Product team plots features on the Value vs Effort matrix. Four candidates: (A) Beautiful vector map rendering with smooth zoom. (B) Offline maps — download for use without internet. (C) Indoor floor maps for airports/malls. (D) Integrated Zagat restaurant reviews.",
+    question:"Using Value vs Effort matrix, which is the 'Quick Win' (high value, low effort) Google should prioritize for rapid iOS Maps launch?",
+    answers:[
+      {label:"A – Vector maps with smooth zoom rendering", reason:"High Value, HIGH Effort: Core infrastructure requiring complete rendering engine rewrite. Strategic must-do but not a quick win."},
+      {label:"B – Offline maps download", reason:"High Value, HIGH Effort: Requires massive infrastructure for tile caching, licensing renegotiation, significant storage. 'Invest' quadrant."},
+      {label:"C – Indoor floor maps for airports/malls", reason:"Low Value (niche), High Effort: Data partnerships needed globally. 'Avoid' quadrant for rapid launch."},
+      {label:"D – Integrated Zagat restaurant reviews with ratings", reason:"High Value (Google paid $151M for Zagat in 2011), LOW Effort (data already owned, API integration only). Classic Quick Win for launch.", correct:true}
+    ],
+    outcome:"Google Maps for iOS launched Dec 2012 leading with integrated Zagat reviews as a headline 'only on Google' feature — zero additional data cost since they owned Zagat. Vector rendering came later in the roadmap. The Value/Effort matrix correctly identified the quick win.",
+    source:"Google acquisition of Zagat 2011; App Store launch Dec 2012"
   },
   {
-    id: 5,
-    year: 'October 2019',
-    framework: 'ice',
-    scenario: `October 2019. Zomato is burning $50 million per quarter. The board has given CFO Akshant Goyal a brutal mandate: reduce cash burn by 40% within 6 months while maintaining growth in India's top 10 cities.
-
-The problem: Zomato is still operating in 24 countries. CEO Deepinder Goyal built these international markets over 5 years with enormous effort and pride — UAE, Lebanon, Turkey, Czech Republic, South Africa, and 19 others. Monthly losses in international markets total $12M.
-
-Your international strategy team has three options:
-
-**Option A: Full International Retreat — Exit all 24 countries, redirect 100% of budget to India**
-- Impact: 9/10 (eliminates $12M/month loss, funds Indian growth significantly)
-- Confidence: 8/10 (clean exit is operationally complex but the financial case is airtight)
-- Ease: 3/10 (extremely complex — legal entity closures, employee layoffs, restaurant partner contracts in 24 jurisdictions)
-
-**Option B: Selective Retreat — Keep UAE + US (profitable), exit remaining 22 countries**
-- Impact: 7/10 (saves ~$10M/month, retains two strategic markets)
-- Confidence: 7/10 (UAE and US show path to profitability within 18 months)
-- Ease: 6/10 (22 country exits still complex but half the legal/HR burden)
-
-**Option C: Double Down Internationally — Raise another ₹500 crore, hire country managers, accelerate**
-- Impact: 4/10 (could capture global food delivery market, but capital markets are souring)
-- Confidence: 3/10 (Uber Eats and Deliveroo have entrenched positions; multiple prior expansion attempts failed)
-- Ease: 2/10 (fundraising in 2019 market conditions is difficult; board is opposed)
-
-ICE Score each option and recommend.`,
-    question: 'Which ICE scoring and strategic recommendation is correct?',
-    answers: [
-      {
-        text: 'Option A: ICE = 9×8×3 = 216 | Option B: ICE = 7×7×6 = 294 | Option C: ICE = 4×3×2 = 24 | Recommend Option B: Selective Retreat',
-        points: 10,
-        feedback: `Excellent ICE application. The scores:
-- Full Retreat: 9 × 8 × 3 = **216**
-- Selective Retreat: 7 × 7 × 6 = **294** ← Highest
-- Double Down: 4 × 3 × 2 = **24**
-
-Option B wins because Ease is the differentiator. Full Retreat has higher Impact and Confidence, but the operational complexity of 24-jurisdiction exits (ICE Ease: 3) drags the score below Selective Retreat (Ease: 6). The UAE market was already contributing positive unit economics, making it illogical to exit.
-
-**What Zomato actually did:** Executed almost exactly this — exiting 22+ countries in 2015-2019 across multiple waves, retaining UAE (profitable, high-order-value) and briefly US before exiting that too. The phased retreat funded India's hyperlocal delivery push.
-
-**The ICE lesson:** ICE captures execution risk, not just strategic desirability. The highest-impact option (full retreat) is often not the highest-ICE option because operational complexity (Ease score) dramatically affects execution probability.`
-      },
-      {
-        text: 'Option A: ICE = 9×8×3 = 216 | Option B: ICE = 7×7×6 = 294 | Option C: ICE = 4×3×2 = 24 | Recommend Option A: Full Retreat has highest strategic clarity',
-        points: 5,
-        feedback: `Your ICE calculations are correct (A=216, B=294, C=24) but your recommendation ignores the framework's conclusion. Option B scores higher (294 > 216) yet you recommend Option A. This is the "framework washing" problem — running the analysis, then ignoring the output to justify a pre-determined choice.
-
-If you genuinely prefer Option A, the right move is to challenge the Ease score: perhaps the 24-jurisdiction exits are less complex than rated? Or adjust Impact upward if financial modelling shows the UAE savings are too small to justify retention. But the recommendation must follow from the scores, or you're not actually using ICE.
-
-**The ICE lesson:** The framework's output is a recommendation, not a suggestion. If you intend to override it, explicitly recalibrate the inputs first. "I choose A despite ICE saying B because I've reassessed Ease as X" is intellectually honest. Ignoring the framework output while presenting ICE scores implies you did the analysis — which is misleading.`
-      },
-      {
-        text: 'Option C: Double Down — ICE scores don\'t capture long-term vision. International is the future.',
-        points: 1,
-        feedback: `Selecting the lowest-ICE option (24) while dismissing the framework entirely reveals a fundamental prioritisation problem: using "vision" language to avoid difficult operational decisions.
-
-By late 2019, Uber Eats had $1.4 billion in annual losses in its international food delivery operations. Deliveroo had retreated from multiple European markets. The ICE score's low Confidence rating (3/10) reflects this competitive reality — markets with entrenched competitors and negative unit economics do not improve with more capital.
-
-**Historical outcome:** Zomato DID briefly double down in the UAE but retreated from most international markets. The companies that attempted to "win internationally" (Ola in UK/Australia/New Zealand) burned capital without sustainable returns.
-
-**The ICE lesson:** "Long-term vision" is not a framework for prioritisation. It's a narrative. ICE exists to test whether your vision is actionable given impact, confidence, and execution constraints. A vision that scores 24/1000 on ICE is, by definition, not ready to execute.`
-      },
-      {
-        text: 'All three options score the same — the ICE factors are too subjective to differentiate between them',
-        points: 1,
-        feedback: `The three ICE scores (216, 294, 24) are meaningfully differentiated — Option C is 12× lower than Option B. Declaring the scores "too subjective to differentiate" when they vary by an order of magnitude represents a misapplication of the framework.
-
-ICE scores are inherently subjective (they require estimates), but that subjectivity is the feature, not the bug. The exercise of assigning scores forces a team to articulate and debate assumptions. If your team cannot agree on whether "full retreat" has Impact 9 or Impact 5, that conversation itself reveals strategic misalignment that must be resolved before execution.
-
-**The ICE lesson:** Subjectivity in scoring is resolved through team calibration, not by abandoning the framework. Run the scores, then debate the outliers. "Why did you rate Ease as 3 for Option A?" is a more productive conversation than "scores are too subjective to use."`
-      }
-    ]
+    id:5,
+    framework:"RICE",
+    fbClass:"fb-rice",
+    year:2014,
+    context:"Material Design is ready to roll out across Google's entire product surface. PM team must decide the rollout sequence. Four options: (A) Apply Material Design to Search first (highest traffic). (B) Launch on Android OS and developer framework first. (C) Roll out across all apps simultaneously. (D) Start with Gmail and Drive for productivity credibility.",
+    question:"Using RICE scoring, which Material Design rollout sequence maximizes impact?",
+    answers:[
+      {label:"A – Apply to Search first (homepage, billions of daily visits)", reason:"Reach: Massive. Impact: Moderate (Search UI changes are subtle). Confidence: 85%. Effort: 8 (very careful testing needed). RICE ≈ 18"},
+      {label:"B – Android OS + developer framework first", reason:"Reach: 1B+ Android developers & users. Impact: 3x (sets standard for ALL apps). Confidence: 95%. Effort: 9. RICE ≈ 31.7 — cascades to entire ecosystem.", correct:true},
+      {label:"C – Simultaneous rollout across all apps", reason:"Reach: 100%. Impact: 2x. Confidence: 50% (execution risk is enormous). Effort: 15. RICE ≈ 6.7 — confidence and effort kill the score"},
+      {label:"D – Gmail and Drive for productivity suite", reason:"Reach: 500M users. Impact: 2x. Confidence: 90%. Effort: 5. RICE ≈ 18 — good but doesn't establish the standard"}
+    ],
+    outcome:"Google launched Material Design at I/O 2014 via Android Lollipop and the developer framework simultaneously. By shipping the design system to developers first, every third-party app could adopt it — creating a multiplier effect no other sequence could achieve. RICE: 31.7 vs next best 18.",
+    source:"Google I/O 2014 keynote; Material Design spec launch"
   },
   {
-    id: 6,
-    year: 'January 2020',
-    framework: 'voe',
-    scenario: `January 2020. Uber has formally announced it will sell Uber Eats India to Zomato in an all-stock deal. Uber Eats has 7.5 million monthly users, 35,000 restaurant partners, and a 15% market share — but is losing $30 million per quarter.
-
-You're in an emergency prioritisation meeting with Deepinder Goyal, CFO Akshant Goyal, and your CTO Gunjan Patidar. The deal must close within 30 days. The question on the table isn't whether to acquire — that's decided. It's: what do we prioritise in the 90 days post-acquisition?
-
-Your team has identified five major integration and growth initiatives. You've estimated Value and Effort for each:
-
-**Initiative 1: Migrate Uber Eats users to Zomato app**
-Value: Very High (captures 7.5M users, eliminates a competitor app)
-Effort: Very High (technical migration, app sunset, UX redesign, restaurant onboarding)
-
-**Initiative 2: Cross-sell Zomato Gold to Uber Eats users**
-Value: High (Gold converts 12% of eligible users, each paying ₹299/month)
-Effort: Low (in-app notification campaign, existing Gold infrastructure)
-
-**Initiative 3: Renegotiate restaurant commission rates**
-Value: High (current Uber Eats commission is 20%; Zomato standard is 28% — ₹2.4 crore/month revenue opportunity)
-Effort: Medium (relationship-heavy, 35,000 partners across 15 cities)
-
-**Initiative 4: Launch dedicated Zomato-Uber Eats co-branded marketing**
-Value: Low (brand confusion risk during transition; users already know Zomato)
-Effort: High (agency brief, media buying, legal brand approvals)
-
-**Initiative 5: Integrate Uber Eats restaurant reviews into Zomato platform**
-Value: Medium (20M legacy Uber Eats reviews improve Zomato's review density)
-Effort: Very Low (API data migration, standard engineering task)`,
-    question: 'Using the Value vs Effort Matrix, what is the correct prioritisation for the post-acquisition 90 days?',
-    answers: [
-      {
-        text: 'Do First: Cross-sell Gold (Quick Win) + Integrate reviews (Quick Win) | Plan Carefully: App migration (Big Bet) + Commission renegotiation (Big Bet) | Avoid: Co-branded marketing (Time Waster)',
-        points: 10,
-        feedback: `Flawless Value vs Effort application. Your 2×2 matrix correctly identifies:
-
-**Quick Wins (Do First):** Gold cross-sell (High Value, Low Effort) and review integration (Medium Value, Very Low Effort). These generate immediate revenue and product improvement with minimal resource drain — perfect first-90-days actions.
-
-**Big Bets (Plan Carefully):** App migration and commission renegotiation are both high-value but high-effort — requiring dedicated workstreams, not improvised sprint work. Planning them properly prevents the "rushed migration" mistakes that destroyed trust in competitor acquisitions.
-
-**Time Waster (Avoid):** Co-branded marketing at low value + high effort is the clearest Time Waster in the portfolio.
-
-**What Zomato actually did:** Gold cross-sell was immediate. The Uber Eats app sunset happened over 4 months with careful UX guidance. Commission renegotiation took 6 months. Co-branded marketing was minimal — Zomato simply announced "Uber Eats is now Zomato" and let the migration speak for itself.`
-      },
-      {
-        text: 'Do First: App migration (most strategically important) + Co-branded marketing (user awareness) | Plan Later: Everything else',
-        points: 2,
-        feedback: `This pairs two of the highest-effort initiatives and attempts to execute them simultaneously in 90 days — a recipe for a failed migration. App migration at Very High Effort requires 6+ months of careful technical work. Rushing it to 90 days (as TikTok's US migration attempts showed) creates data loss, UX degradation, and user churn.
-
-Co-branded marketing as "Do First" ignores its Time Waster classification — Low Value + High Effort. Spending ₹15-20 crore on marketing during a complex technical migration creates brand confusion precisely when you need users to trust the transition.
-
-**The Value vs Effort lesson:** "Strategically important" is captured by the Value axis — not as a bypass to the matrix. Very High Effort initiatives require planning, resourcing, and milestone tracking before execution, regardless of strategic importance. Executing Big Bets without planning converts them into Failed Bets.`
-      },
-      {
-        text: 'Do First: Commission renegotiation + App migration | Plan Later: Everything else | The revenue from commissions justifies the complexity',
-        points: 3,
-        feedback: `Commission renegotiation is indeed a high-value move, but classifying it as "Do First" (Quick Win) is an error — it's a Big Bet because of the Medium-High effort involved in 35,000 restaurant relationships across 15 cities. Restaurant partners who feel rushed or pressured into commission changes often reduce order quality, delay menu updates, or list on competitor platforms.
-
-Pairing it with App migration (Very High Effort) in the 90-day "Do First" bucket overloads your team's bandwidth for the highest-risk period of the acquisition.
-
-**The Value vs Effort lesson:** Quick Wins require genuinely low effort. If commission negotiation takes 4 months of relationship management, it belongs in "Plan Carefully" with appropriate timelines, not in "Do First" because the revenue number looks attractive. Value vs Effort is about what you can execute well, not just what generates revenue.`
-      },
-      {
-        text: 'All initiatives are equally important — this is an acquisition, everything must happen simultaneously',
-        points: 1,
-        feedback: `"Everything simultaneously" is the resource allocation error that destroys acquisitions. When Snapdeal tried to integrate Freecharge (2015), Foodpanda tried to integrate multiple acquisitions (2017), and multiple global acquisitions failed — the common thread was attempting full simultaneous integration without prioritisation.
-
-The Value vs Effort matrix exists specifically for post-acquisition scenarios, where urgency creates pressure to do everything at once. Your engineering team cannot simultaneously migrate 7.5M users, renegotiate 35,000 restaurant contracts, and build a marketing campaign without dropping quality in all three.
-
-**The Value vs Effort lesson:** In acquisition integration, the sequencing of initiatives is as important as the initiatives themselves. Quick Wins first (build momentum + revenue), then Big Bets (with proper resources), then defer or skip Time Wasters permanently.`
-      }
-    ]
+    id:6,
+    framework:"MoSCoW",
+    fbClass:"fb-moscow",
+    year:2016,
+    context:"Google Assistant is 3 months from launch at Google I/O 2016. Engineering bandwidth is tight. Feature set debate: (A) Natural language follow-up questions (remembers context across turns). (B) Integration with Google Home smart speaker. (C) Third-party app Actions (developer ecosystem). (D) Proactive suggestions based on calendar/location context.",
+    question:"Using MoSCoW, which features belong in Must Have vs Should Have for Google Assistant's launch?",
+    answers:[
+      {label:"A+B as Must Have, C+D as Should Have", reason:"Natural language + hardware integration are core — but third-party Actions are actually critical for competitive differentiation vs Alexa's Skills.", correct:true},
+      {label:"A+C as Must Have, B+D as Should Have", reason:"Actions (developer ecosystem) before hardware launch doesn't match the I/O + Google Home announcement strategy."},
+      {label:"A only as Must Have, B+C+D as Should Have", reason:"Under-prioritizes hardware; Google Home needed Assistant to justify its existence at launch."},
+      {label:"All four as Must Have", reason:"Dilutes engineering focus — classic scope creep that leads to a buggy launch of all four rather than polished core features."}
+    ],
+    outcome:"Google shipped Assistant at I/O 2016 with multi-turn natural language (A) as the core Must Have, Google Home integration (B) as Must Have for the hardware launch story, and Actions SDK (C) as a developer preview. Proactive suggestions (D) came in 2017. The A+B+C(preview) launch was the right call.",
+    source:"Google I/O 2016 keynote; Ars Technica Google Assistant deep dive"
   },
   {
-    id: 7,
-    year: 'June 2021',
-    framework: 'rice',
-    scenario: `June 2021. Zomato's IPO is in 25 days. Your investment bankers at Kotak and Morgan Stanley have just delivered an uncomfortable message: institutional investors are asking for "the one metric" that tells Zomato's growth story. The red herring prospectus lists 14 different metrics, and analysts are confused.
-
-"You can't tell a story with 14 numbers," says banker Rajeev Mishra. "Which one metric do you put on the front page of your roadshow deck?"
-
-Your data team has prepared RICE analysis on five candidate North Star Metrics. They've scored each metric on how well it drives business outcomes (used as "Impact"), how reliably it reflects user value (Confidence), and how much engineering/analytics effort is required to track it accurately (Effort). Reach is the number of business units this metric governs.
-
-| Metric | Reach (business units affected) | Impact (business outcome correlation) | Confidence (data quality) | Effort (tracking complexity) |
-|--------|--------|--------|--------|--------|
-| Gross Order Value (GOV) | 5 | 8 | 9 | 1 |
-| Monthly Transacting Users (MTU) | 5 | 7 | 9 | 1 |
-| Contribution Margin % | 5 | 9 | 6 | 4 |
-| NPS (Net Promoter Score) | 5 | 6 | 5 | 6 |
-| Average Order Frequency | 5 | 8 | 8 | 2 |
-
-"Run the RICE scores and recommend our North Star," the CFO tells you.`,
-    question: 'Which RICE calculation identifies the correct North Star Metric for Zomato\'s IPO story?',
-    answers: [
-      {
-        text: 'GOV: (5×8×9)÷1=360 | MTU: (5×7×9)÷1=315 | Contribution Margin: (5×9×6)÷4=67.5 | NPS: (5×6×5)÷6=25 | Order Frequency: (5×8×8)÷2=160 | North Star: GOV',
-        points: 10,
-        feedback: `Correct calculations and the right North Star for IPO. GOV (₹ value of all orders) scores 360 — highest — because it combines high business impact (8), high data confidence (9), and negligible tracking effort (1).
-
-**Why GOV for an IPO story:** Investors think in revenue units. GOV directly connects to commission revenue (Zomato's ~15% take rate), making it the most legible metric for institutional investors. A ₹1,000 crore increase in GOV = ~₹150 crore in incremental revenue — this arithmetic is immediately understandable.
-
-**What Zomato actually used:** GOV was Zomato's primary IPO metric. The prospectus led with GOV growing from ₹7,234 crore (FY19) to ₹12,257 crore (FY20 pre-COVID). The roadshow centred on "GOV acceleration" as the headline growth narrative.
-
-**The RICE lesson applied to metrics selection:** North Star metrics aren't just about "what matters most" — they're about what can be measured with confidence (Confidence score) and communicated without complexity. High-Confidence, Low-Effort metrics win for external storytelling.`
-      },
-      {
-        text: 'NPS is the true North Star — customer love drives everything else. RICE scores miss qualitative value.',
-        points: 2,
-        feedback: `NPS scores the lowest in RICE (25) for important reasons: low data confidence (5/10 — survey response bias, manipulation risk) and high tracking effort (6/10 — requires ongoing survey infrastructure). For an IPO, institutional investors specifically distrust NPS because it's easily manipulated (Zomato could improve NPS by selectively surveying its best customers).
-
-Additionally, NPS doesn't correlate strongly with revenue growth in marketplace businesses — a restaurant platform can have high NPS with stagnant GMV if users love the experience but order infrequently.
-
-**The RICE lesson:** "Qualitative value" that isn't captured in RICE inputs reflects a misspecification of the Impact score. If you believe NPS drives revenue, quantify it: "a 10-point NPS increase historically correlates with X% order frequency increase." If you can't make that link, NPS is not your North Star — it's a diagnostic metric.`
-      },
-      {
-        text: 'Monthly Transacting Users (MTU): RICE=315 — user growth is more important to investors than order value',
-        points: 5,
-        feedback: `MTU (315) is the second-highest RICE score and a legitimate North Star candidate. It measures the number of users who actually transact (not just download the app), which is a high-quality engagement signal.
-
-However, for Zomato's IPO in 2021, MTU has a key weakness: a user who orders once in a month counts equally to one who orders 30 times. GOV captures both frequency AND order value, making it a richer signal of business health.
-
-**Partial credit reasoning:** MTU is a valid North Star for a growth-stage company focused on user acquisition (which Zomato was in 2019-2020). By IPO stage (2021), the question shifts from "are we acquiring users?" to "are acquired users generating value?" GOV answers the latter better.
-
-**The RICE lesson:** The same framework applied to the same company at different stages can produce different North Star recommendations. Revisit your North Star metric annually — what drove decisions in Year 3 may be the wrong signal in Year 10.`
-      },
-      {
-        text: 'Contribution Margin % is the North Star — profitability metrics are what IPO investors actually care about',
-        points: 3,
-        feedback: `Contribution Margin % scores only 67.5 in RICE — third place — primarily because tracking it accurately is complex (Effort: 4) and confidence is lower than GOV (6/10, because contribution margin involves cost allocation decisions that can shift the number).
-
-For a growth-stage tech IPO in 2021, investors were explicitly evaluating growth trajectory, not current profitability. Zomato was loss-making (₹816 crore net loss in FY21) — using contribution margin as the North Star would have drawn attention to the loss story rather than the growth story.
-
-**However:** Contribution Margin IS the right North Star post-IPO. Zomato shifted to focusing on contribution margin positivity in FY23, which led to the first profitable quarter in Q1 FY24.
-
-**The RICE lesson:** The right North Star depends on company stage and investor narrative. For pre-profitability IPOs, high-confidence growth metrics (GOV) dominate. For mature companies, efficiency metrics (contribution margin) take over.`
-      }
-    ]
+    id:7,
+    framework:"Kano Model",
+    fbClass:"fb-kano",
+    year:2017,
+    context:"Gmail is getting its biggest redesign since 2011. UX research team runs Kano surveys on feature candidates: (A) Snooze emails — temporarily hide until a chosen time. (B) Confidential Mode — emails that expire and can't be forwarded. (C) Smart Reply — 3 one-tap AI-generated reply suggestions. (D) Nudge — AI resurfaces old threads needing follow-up.",
+    question:"Applying Kano Model analysis, which feature is the 'Performance' feature where satisfaction scales linearly with quality?",
+    answers:[
+      {label:"A – Snooze emails", reason:"Delighter: Users didn't know they wanted this. When shown the feature, satisfaction jumped dramatically. Not expected, creates delight."},
+      {label:"B – Confidential Mode email expiry", reason:"Delighter: Unexpected privacy capability. Users in regulated industries were thrilled. But low mainstream relevance reduces its Kano impact."},
+      {label:"C – Smart Reply one-tap suggestions", reason:"Performance feature: The more accurate the AI suggestions, the more users love it. Quality directly scales satisfaction. Poor suggestions create frustration — a linear relationship.", correct:true},
+      {label:"D – Nudge AI follow-up surfacing", reason:"Basic/Must-be: Once you've seen this feature, its absence in future email clients would feel like a missing capability — classic table stakes migration."}
+    ],
+    outcome:"Gmail's 2018 redesign launched all four. Kano analysis confirmed Smart Reply as the Performance feature — Google A/B tested suggestion quality extensively because they knew satisfaction would scale precisely with accuracy. Snooze was the user-research Delighter. Smart Reply now processes 10% of all Gmail replies.",
+    source:"Google Blog 2018; Google I/O 2018 Gmail redesign session"
   },
   {
-    id: 8,
-    year: 'June 2022',
-    framework: 'moscow',
-    scenario: `June 2022. Zomato has just announced the acquisition of Blinkit (formerly Grofers) for ₹4,447 crore ($568 million) in an all-stock deal. Blinkit promises 10-minute grocery delivery from 500+ dark stores.
-
-The market reaction is brutal. Zomato's stock drops 9% on announcement day. Analysts call it "value destruction." Short-sellers publish a note: "Zomato is becoming a conglomerate instead of a food delivery leader."
-
-You're the PM responsible for the Zomato-Blinkit integration product roadmap. In your first 6 months, your team has limited engineering bandwidth — 10 person-months. The Blinkit product team has their own backlog and won't be fully integrated for 12 months.
-
-Your CEO sends a Slack message: "We need to show investors that 1+1=3 quickly. What do we ship in 6 months that proves the thesis?"
-
-Features under consideration for the integration:
-
-- **Unified cart** (order food from Zomato + groceries from Blinkit in one checkout): 4 months engineering
-- **Cross-app install prompts** (Zomato users prompted to install Blinkit, vice versa): 2 weeks
-- **Shared delivery partner network** (Zomato and Blinkit delivery partners interchangeable): 8 months engineering  
-- **Single loyalty programme** (Zomato Gold benefits applicable on Blinkit orders): 3 months
-- **Combined customer data platform** (single user profile across both apps): 5 months
-- **Joint restaurant + grocery combo offers** (₹X off when you order both): 3 weeks
-- **Blinkit dark store insights for restaurant inventory** (restaurants use Blinkit data to forecast demand): 6 months`,
-    question: 'Apply MoSCoW to identify what Zomato must ship in 6 months to prove the acquisition thesis to investors',
-    answers: [
-      {
-        text: 'Must: Cross-app install prompts + Joint combo offers | Should: Single loyalty programme | Could: Combined data platform | Won\'t: Unified cart, shared delivery network, restaurant inventory insights (all exceed 6-month bandwidth)',
-        points: 10,
-        feedback: `Brilliant MoSCoW for an investor narrative context. The Must-Haves are perfectly chosen: both are achievable within weeks and directly visible to investors and users as "proof of integration."
-
-**Cross-app installs** demonstrate user ecosystem: every Zomato user who installs Blinkit is a measurable synergy metric — you can show investors "X million users crossed over in 6 months." This is observable, reportable, and immediate.
-
-**Combo offers** create the first tangible consumer experience of "food + grocery together" — a story that previously required separate app opens. Even a simple ₹50 off when you order both is headline-generating.
-
-**Why Won't for unified cart (4 months) and shared delivery (8 months):** Both exceed 6-month budget and would ship incomplete if rushed. A broken unified cart experience would damage the investment thesis, not prove it.
-
-**What Zomato actually did:** Cross-app prompts and combo offers shipped in 2022. Unified cart followed in H1 2023. The shared delivery network is still being optimised as of 2024.`
-      },
-      {
-        text: 'Must: Unified cart (most impactful) + Shared delivery network (core operational synergy) | Should: Loyalty programme | Could: Everything else | Won\'t: Nothing',
-        points: 2,
-        feedback: `This selection prioritises the two most engineering-intensive initiatives (4 months + 8 months = 12 months combined) as Must-Haves in a 10-person-month budget window. The arithmetic doesn't work: you cannot ship both in 6 months.
-
-Rushing a unified cart experience creates the opposite of investor confidence — a buggy checkout that mixes food delivery and grocery orders creates a confusing experience that headlines will call "acquisition chaos."
-
-**The MoSCoW constraint lesson:** Must-Haves in a time-boxed sprint cannot exceed the sprint's available capacity. If unified cart (4 months) is Must-Have in a 6-month sprint, that's theoretically possible alone. But paired with 8-month shared delivery, you've over-committed your Must bucket by 2× capacity.
-
-A good MoSCoW always passes the "can we actually ship all Must-Haves?" feasibility test. If the answer is no, recategorise — move the longer initiative to Should.`
-      },
-      {
-        text: 'Must: All 7 features — the acquisition thesis requires demonstrating full integration capability immediately',
-        points: 1,
-        feedback: `Total effort for all 7 features: 4 + 0.5 + 8 + 3 + 5 + 0.75 + 6 = 27.25 person-months. Available budget: 10 person-months. This plan requires 2.7× your capacity — the definition of an impossible sprint.
-
-Committing to 27 person-months of work in 6 months with 10 person-months available means either: (a) shipping nothing because every feature is half-built, or (b) shipping everything at 40% quality, which creates bugs, user complaints, and media headlines that damage the acquisition thesis further.
-
-**The MoSCoW lesson:** The Won't-Have category is not a failure to prioritise — it's an explicit acknowledgement of capacity constraints. A roadmap that never uses the Won't category isn't a roadmap; it's a wish list. In post-acquisition integration, attempting everything ensures completing nothing.`
-      },
-      {
-        text: 'Must: Combined data platform (5 months) + Single loyalty programme (3 months) — these create the deepest long-term moat | Should: Cross-app prompts | Could: Combo offers | Won\'t: Everything else',
-        points: 4,
-        feedback: `Partial credit — the budget math works (5+3 = 8 person-months, within 10-month budget) and both are legitimate integration priorities. However, this selection optimises for long-term moat over short-term investor narrative proof.
-
-The problem: a combined data platform is largely invisible to users and investors in 6 months — it's backend infrastructure. A single loyalty programme is valuable but takes 3 months to show adoption data.
-
-Deepinder's Slack message was explicit: "show investors that 1+1=3 **quickly.**" The CEO's urgency requires visible, reportable, user-facing wins — not backend data infrastructure that needs 18 months to show measurable ROI.
-
-**The MoSCoW lesson:** "Must-Have" depends on stakeholder context. For an internal product health sprint, a data platform is Must-Have. For an investor narrative sprint, visible consumer-facing wins are Must-Have. Always clarify whose perspective defines "must" before your MoSCoW session.`
-      }
-    ]
+    id:8,
+    framework:"Value vs Effort",
+    fbClass:"fb-ve",
+    year:2018,
+    context:"Google Maps AR Navigation (now 'Live View') is on the roadmap. PM team plots it on Value vs Effort matrix alongside competing projects: (A) AR walking directions via camera. (B) Restaurant wait time predictions using ML. (C) Integration of Google Pay for parking meters in Maps. (D) Personalized 'For You' tab with recommendation feed.",
+    question:"On a Value vs Effort matrix, which project is in the 'Strategic Investment' quadrant (high value, high effort) that Google must commit to despite the cost?",
+    answers:[
+      {label:"A – AR walking directions via camera (Live View)", reason:"High Value: Solves 'last 100 meters' navigation problem, massive differentiator vs Apple Maps. High Effort: ARCore integration, real-time pose estimation, visual positioning. True Strategic Investment.", correct:true},
+      {label:"B – Restaurant wait time predictions", reason:"High Value, LOW Effort: ML on existing reservation + foot traffic data. This is actually a 'Quick Win' — Google shipped this easily in 2018."},
+      {label:"C – Google Pay parking meter integration", reason:"Low Value (niche urban use case), High Effort (city-by-city partnerships). Classic 'Avoid' quadrant."},
+      {label:"D – Personalized 'For You' recommendation tab", reason:"Moderate Value, Low Effort: Recommendation algorithm already exists from Search. 'Quick Win' territory, not Strategic Investment."}
+    ],
+    outcome:"AR Live View launched in 2019 after 18 months of development — confirmed Strategic Investment. Restaurant wait times shipped in 3 months (Quick Win). Google Pay parking came years later when city partnerships scaled. The Value/Effort matrix correctly identified AR as the one bet worth the multi-year investment.",
+    source:"Google I/O 2019 Maps keynote; TechCrunch AR Live View launch"
   },
   {
-    id: 9,
-    year: 'September 2023',
-    framework: 'kano',
-    scenario: `September 2023. Zomato has just reported its first profitable quarter — Q1 FY24 with ₹2 crore net profit, a ₹188 crore swing from a loss of ₹188 crore the previous year. The board is celebrating but cautious: the path to sustained profitability requires product decisions that protect margins.
-
-CFO Akshant Goyal calls an emergency product review. "We've identified four product investments that are consuming ₹180 crore per year without clear profitability contribution. We need to Kano-model our product portfolio and decide what to cut, what to maintain, and what to invest in."
-
-Your user research team has run Kano surveys with 1,200 users:
-
-**Feature A: Free Delivery (Zomato Gold benefit)**
-- 81% rate as "Basic Need" — expected, dissatisfaction if absent
-- Monthly cost: ₹65 crore (subsidy)
-
-**Feature B: 24/7 Live Customer Support Chat**
-- 63% rate as "Performance" — more = more satisfied
-- Monthly cost: ₹18 crore (support agents)
-
-**Feature C: Zomato Legends (Intercity Food Delivery — biryani from Lucknow to Delhi)**
-- 44% "Delighter", 41% "Indifferent"
-- Monthly cost: ₹22 crore (intercity logistics)
-
-**Feature D: Restaurant Health Ratings (partnership with FSSAI)**
-- 67% rate as "Basic Need" — safety is expected
-- Monthly cost: ₹4 crore (data integration)
-
-**Feature E: Zomato Pro (enhanced Gold subscription at ₹599/month)**
-- 38% "Performance", 29% "Delighter", 33% "Indifferent"
-- Monthly revenue: +₹28 crore
-
-The board wants to cut ₹50 crore/month in product costs without damaging user trust. Apply Kano to identify what to cut, maintain, or invest.`,
-    question: 'Which Kano-based recommendation correctly balances cost reduction with user trust?',
-    answers: [
-      {
-        text: 'Cut: Zomato Legends (Delighter/Indifferent split, ₹22 crore) + partial live chat (reduce to 16-hour support, save ₹8 crore) = ₹30 crore saved | Protect: Free delivery (Basic Need) + Health ratings (Basic Need) | Invest: Zomato Pro (revenue positive)',
-        points: 10,
-        feedback: `Textbook Kano cost-optimisation. The analysis is correct on every dimension:
-
-**Cut Legends:** The 41% Indifferent rating is the critical signal. In Kano, when a feature has a near-equal Delighter/Indifferent split, it's a "niche delight" — valuable to a segment but not broadly essential. ₹22 crore/month for 41% indifference is poor ROI. Zomato actually discontinued Legends in 2024 for exactly this reason.
-
-**Partial chat reduction:** Performance features scale — reducing from 24/7 to 16-hour still satisfies 80%+ of users (most ordering happens 11am-11pm). This is a Performance feature optimisation, not removal.
-
-**Protect Basic Needs:** Cutting free delivery (₹65 crore/month) or health ratings (₹4 crore) would generate immediate, vocal user dissatisfaction — the classic Kano trap. Basic Need violations destroy trust non-linearly.
-
-**Invest in Pro:** Revenue-positive Performance/Delighter features should scale, not cut.
-
-Total saved: ₹30 crore. Not the full ₹50 crore target, but sustainable.`
-      },
-      {
-        text: 'Cut: Free delivery (₹65 crore) — highest cost, highest impact on profitability | Protect: Everything else',
-        points: 1,
-        feedback: `Cutting a Basic Need that 81% of users expect is the most dangerous product decision in the Kano framework. Unlike Performance features that scale gradually or Delighters that are surprises, Basic Need violations generate immediate, disproportionate backlash.
-
-When Amazon Prime briefly removed free shipping from some categories (2023), NPS dropped 18 points in 48 hours. When Netflix removed password sharing (2023), they gained revenue but lost 1.2 million subscribers initially.
-
-Free delivery at ₹65 crore/month is Zomato's highest cost but also its highest trust anchor — the reason Gold subscribers renew. Cutting it would accelerate Gold cancellations, reducing the ₹299/month × subscriber base faster than the ₹65 crore in cost savings.
-
-**The Kano cost-cutting lesson:** Basic Needs are the last items to cut in a profitability push. Always begin with Indifferent features (½ of Legends users), then optimise Performance features (chat hours), before touching Basic Needs.`
-      },
-      {
-        text: 'Cut all four cost items completely (Legends + chat + free delivery + health ratings) to maximise cost savings',
-        points: 1,
-        feedback: `Cutting all four items includes eliminating two Basic Needs (free delivery + health ratings). The combined effect: Gold subscribers receive no delivery benefit (cancellation spike) and restaurant safety information disappears (regulatory risk + consumer trust collapse).
-
-Total potential savings: ₹109 crore/month. But the revenue loss from Gold cancellations and the reputational damage from removing health ratings would likely exceed this within 90 days.
-
-**The Kano framework warning:** Products that eliminate Basic Needs in the name of cost efficiency typically experience user churn that is 3-5× more expensive to recover from than the savings generated. This is the "Kano cliff" — below the Basic Need threshold, satisfaction doesn't decrease gradually; it collapses.
-
-Zomato's management in FY24 specifically protected Basic Needs while optimising costs elsewhere — this is why their profitability was sustainable, not one-time.`
-      },
-      {
-        text: 'Cut: Zomato Pro (uncertain Kano classification = risky) | Protect: Everything with clear Kano classification | Maintain current costs',
-        points: 3,
-        feedback: `This recommendation misreads the Kano data for Zomato Pro. A 38% Performance + 29% Delighter + 33% Indifferent split indicates a segmented response — highly valuable to heavy users, irrelevant to casual ones. This is not "uncertain"; it's a classic subscription product profile.
-
-More critically, Zomato Pro generates ₹28 crore/month in revenue. Cutting a revenue-generating feature to achieve ₹50 crore in savings is backwards — you'd save ₹0 in costs while losing ₹28 crore in revenue, a ₹28 crore net deterioration.
-
-**The Kano lesson:** Revenue-generating features with mixed Kano profiles should be optimised (repackage for the 38% Performance users who value it), not eliminated. The Indifferent 33% are not Pro subscribers — they don't matter to the Pro product decision. Segment your Kano analysis by paying subscribers, not the full user base.`
-      }
-    ]
+    id:9,
+    framework:"RICE",
+    fbClass:"fb-rice",
+    year:2020,
+    context:"During COVID-19, Google Meet went from a niche enterprise tool to competing directly with Zoom. Product team must prioritize ONE feature for urgent Q2 2020 sprint. Candidates: (A) Noise cancellation using AI. (B) Tiled grid view showing all participants simultaneously. (C) Hand raise feature for structured Q&A. (D) Google Meet integration directly inside Gmail.",
+    question:"Using RICE scoring, which feature should Google Meet prioritize for the COVID-19 sprint?",
+    answers:[
+      {label:"A – AI noise cancellation", reason:"Reach: 60% of users in noisy environments. Impact: 2x. Confidence: 75% (AI quality variable). Effort: 8. RICE ≈ 11.3"},
+      {label:"B – Tiled grid view (all participants)", reason:"Reach: 100% of users on group calls. Impact: 3x (Zoom had this; absence was major complaint). Confidence: 95%. Effort: 4. RICE ≈ 71.3 — the clear winner.", correct:true},
+      {label:"C – Hand raise for Q&A", reason:"Reach: 40% (edu/webinar use cases). Impact: 2x. Confidence: 95%. Effort: 2. RICE ≈ 38 — good but much lower reach"},
+      {label:"D – Gmail native integration", reason:"Reach: 1.8B Gmail users. Impact: 1.5x (convenience, not critical). Confidence: 90%. Effort: 10. RICE ≈ 24.3 — high reach, lower impact"}
+    ],
+    outcome:"Google Meet shipped tiled grid view in April 2020 as its most urgent priority — directly addressing the #1 user complaint vs Zoom. The RICE math was decisive: 100% reach + 3x impact + 95% confidence + low effort = RICE 71.3, dwarfing all alternatives. Meet grew from 3M to 100M daily users in April 2020.",
+    source:"Google Workspace Blog April 2020; The Verge Meet vs Zoom analysis"
   },
   {
-    id: 10,
-    year: 'August 2024',
-    framework: 'ice',
-    scenario: `August 2024. Zomato's parent company has just rebranded to Eternal Limited, now operating four brands: Zomato (food delivery), Blinkit (quick commerce), Hyperpure (B2B ingredients), and District (events + dining).
-
-District was launched in November 2024 after Zomato acquired Paytm's entertainment and ticketing business (Insider.in and TicketNew) for ₹2,048 crore. The vision: a single app for "going out" — restaurant bookings, movies, concerts, live events.
-
-You're the PM for District's Year 1 product strategy. Engineering capacity: 8 person-months/quarter. You have four feature initiatives competing for Q1 FY26 bandwidth:
-
-**Feature A: Live Event Ticketing Integration (Insider.in catalogue in District app)**
-- Impact: 8/10 (Insider has 200+ events/month, ₹80 crore GMV, direct revenue)
-- Confidence: 9/10 (proven product, just needs integration)
-- Ease: 7/10 (API integration of existing platform, not a new build)
-
-**Feature B: AI-Powered "What's On Tonight" Recommendations**  
-- Impact: 7/10 (personalisation increases session time + booking conversion)
-- Confidence: 5/10 (AI recommendations require 6+ months training data to work well)
-- Ease: 3/10 (new ML model, cold start problem with limited District user data)
-
-**Feature C: Restaurant Table Booking with Zomato Review Integration**
-- Impact: 6/10 (leverages Zomato's 50M+ reviews; 340 cities; dining-out market ₹4.2L crore)
-- Confidence: 8/10 (Zomato already had table bookings; this is an enhancement)
-- Ease: 8/10 (review data migration, existing restaurant relationships)
-
-**Feature D: Cross-Platform Loyalty (District events + Zomato food + Blinkit grocery = unified reward points)**
-- Impact: 9/10 (creates lock-in across all Eternal brands; CEO priority)
-- Confidence: 4/10 (multi-brand loyalty programmes historically have low redemption)
-- Ease: 2/10 (requires Blinkit + Zomato engineering coordination; 3 separate tech stacks)`,
-    question: 'ICE score all four features and identify the correct prioritisation for District Q1 FY26',
-    answers: [
-      {
-        text: 'A: 8×9×7=504 | B: 7×5×3=105 | C: 6×8×8=384 | D: 9×4×2=72 | Priority: A first, then C, then B, then D in Q2+',
-        points: 10,
-        feedback: `Perfect ICE execution for District's Year 1. The calculations:
-- **Feature A (Ticketing): 504** ← Execute immediately
-- **Feature C (Restaurant booking): 384** ← Second priority
-- **Feature B (AI recommendations): 105** ← Defer to Q2 when data exists
-- **Feature D (Cross-platform loyalty): 72** ← Needs separate multi-quarter planning
-
-**Why A first:** Insider.in integration is the founding use case of District — the entire acquisition thesis requires ticketing to work. High confidence (9/10 — proven product), high ease (7/10 — API integration). This is District's "Quick Win" that justifies the ₹2,048 crore acquisition price.
-
-**Why C second:** Restaurant booking leverages Zomato's existing 50M reviews and restaurant relationships. The 8/10 confidence reflects prior success. Together with ticketing, A+C creates a viable "going out" app within one quarter.
-
-**Why D last despite CEO priority:** The 4/10 confidence and 2/10 ease scores are critical warnings. Cross-platform loyalty requires engineering alignment across three separate tech stacks. Attempting this in Q1 without a dedicated cross-functional team creates scope creep that delays A and C.
-
-**The ICE lesson:** CEO priority is captured in the Impact score (9/10). But Impact×Confidence×Ease = 72 < A's 504. High-impact, low-confidence, low-ease initiatives belong in a dedicated planning track, not the main sprint.`
-      },
-      {
-        text: 'D: Cross-platform loyalty = highest priority because CEO said so and Impact=9. ICE scores are secondary to executive direction.',
-        points: 2,
-        feedback: `Feature D has the highest Impact (9) but the lowest overall ICE score (72) because Confidence (4) and Ease (2) collapse the total. The ICE framework exists precisely to challenge "CEO says so" prioritisation by forcing an explicit assessment of execution risk.
-
-A cross-platform loyalty programme spanning three tech stacks (Zomato, Blinkit, District) with 4/10 confidence has significant probability of shipping incomplete or late. History: Paytm's unified loyalty programme (2019-2022) required 3 years and multiple resets before functioning correctly. Swiggy's loyalty integration with Instamart still shows inconsistencies in 2024.
-
-**The right approach:** Don't deprioritise the CEO's initiative — de-risk it. Present the ICE score to leadership and propose a phased plan: "We'll ship A+C in Q1 (ICE 504+384), which proves the 'going out' thesis. In Q2, we dedicate a cross-functional team to loyalty with a proper architecture review." This is better PM communication than simply overriding the framework.`
-      },
-      {
-        text: 'B: AI recommendations = best long-term investment despite low ICE score of 105. AI will differentiate District.',
-        points: 3,
-        feedback: `Feature B's low ICE score (105) is driven by a 5/10 Confidence and 3/10 Ease that reflect a real technical constraint: ML recommendation models require training data to work. District has almost no user data in Q1 FY26 — it launched in November 2024. Recommending "AI personalisation" to users who've had 0-2 sessions produces generic results that damage trust in the AI, not enhance it.
-
-Netflix's recommendation engine took 3 years of viewing data before it became genuinely personalised. Spotify Discover Weekly required 2+ years of listening history. Building District's AI recommendations before you have 6+ months of user behaviour data is a cold-start problem that creates poor UX.
-
-**The ICE lesson:** ICE Confidence scores capture data-driven risk, not just technical risk. "Low confidence" in this context means "we don't have the data to make this work well yet." The right time to build this feature is Q3-Q4 FY26 when District has 9 months of user behaviour to train on.`
-      },
-      {
-        text: 'All features score too closely to differentiate. Build A+B+C+D simultaneously in Q1.',
-        points: 1,
-        feedback: `The ICE scores (504, 384, 105, 72) span a 7× range — Feature A scores 7 times higher than Feature D. This is not "too close to differentiate." When one feature scores 7× another, the ICE framework is providing a clear signal that should override the "build everything" instinct.
-
-With 8 person-months capacity and Feature D requiring multi-stack coordination that could consume 10+ person-months on its own, attempting all four simultaneously guarantees that none ships at quality.
-
-**The ICE lesson for District specifically:** Year 1 of a new product requires focus, not breadth. District needs to nail one core use case (live events ticketing, ICE 504) and one adjacent use case (restaurant bookings, ICE 384) before expanding into AI recommendations and cross-platform loyalty. Attempting all four in Q1 produces a half-functioning "going out" app that disappoints the market Zomato paid ₹2,048 crore to enter.`
-      }
-    ]
+    id:10,
+    framework:"MoSCoW",
+    fbClass:"fb-moscow",
+    year:2023,
+    context:"Google is rushing to launch Bard (now Gemini) as a direct response to ChatGPT's explosive growth. The team has 6 weeks to a public launch. Feature debate: (A) Real-time web search grounding (cites live sources). (B) Multi-turn conversation memory within sessions. (C) Code generation and debugging. (D) Integration with Google Workspace (Docs, Gmail, Sheets). (E) Image understanding (multimodal input).",
+    question:"Using MoSCoW for a 6-week ChatGPT competitive response launch, which is the correct prioritization?",
+    answers:[
+      {label:"Must: A+B | Should: C | Could: D | Won't: E", reason:"Excludes code (major ChatGPT use case) from Should Have. Misjudges developer audience importance for AI credibility."},
+      {label:"Must: A+B+C | Should: D | Could: E | Won't: nothing", reason:"Web grounding + conversation + code = core ChatGPT parity. Workspace integration = Should Have (valuable but not launch-blocking). Multimodal = Could Have for v1.", correct:true},
+      {label:"Must: A+B+D | Should: C | Could: E | Won't: nothing", reason:"Prioritizing Workspace over code misjudges the launch audience — early adopters are developers and tech-savvy users, not Workspace enterprise users."},
+      {label:"Must: A only | Should: B+C | Could: D+E | Won't: nothing", reason:"Under-prioritizes. Launching without conversation memory would make Bard feel like a search engine, not a ChatGPT competitor."}
+    ],
+    outcome:"Bard launched Feb 2023 with web search grounding (A), conversation memory (B), and code generation (C) as core features — exactly the Must Have set. Workspace integration ('Duet AI') launched separately in 2023 as a premium product. Multimodal (Gemini) launched December 2023. The MoSCoW sequence was correct.",
+    source:"Google Bard launch blog Feb 2023; Google I/O 2023 Duet AI announcement"
   }
 ];
 
-// ─── SCORING ───────────────────────────────────────────────
-const getTier = (pct) => {
-  if (pct >= 90) return { tier:'Chief Product Officer', emoji:'🏆', color:'#7c3aed', desc:'Exceptional prioritisation mastery' };
-  if (pct >= 75) return { tier:'Senior PM', emoji:'🥇', color:'#059669', desc:'Strong framework application' };
-  if (pct >= 60) return { tier:'Product Manager', emoji:'🥈', color:'#0891b2', desc:'Solid prioritisation skills' };
-  if (pct >= 40) return { tier:'Associate PM', emoji:'🥉', color:'#d97706', desc:'Building your prioritisation toolkit' };
-  return { tier:'PM Trainee', emoji:'📚', color:'#E23744', desc:'Keep practising the frameworks' };
-};
+const TIERS = [
+  {min:90,label:"PM Visionary",color:"#4285F4",desc:"You think like Google's top PMs. Exceptional framework application."},
+  {min:75,label:"Senior PM",color:"#34A853",desc:"Strong strategic instincts. You understand how Google prioritizes."},
+  {min:60,label:"PM Practitioner",color:"#FBBC05",desc:"Solid foundations. Deepen your RICE and Kano application skills."},
+  {min:0,label:"PM Associate",color:"#EA4335",desc:"Keep practicing. These frameworks take time to internalize."}
+];
 
-// ─── TRACKING ──────────────────────────────────────────────
-const getDevice = () => {
-  const ua = navigator.userAgent;
-  if (/tablet|ipad/i.test(ua)) return 'Tablet';
-  if (/mobi|android|iphone/i.test(ua)) return 'Mobile';
-  return 'Desktop';
-};
+function getTier(score){return TIERS.find(t=>score>=t.min);}
 
-const track = (event, extra) => {
-  try {
-    const payload = { event, simulation: SIM_NAME, ...extra };
-    const url = GOOGLE_SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
-    new Image().src = url;
-  } catch(e) {
-    try {
-      const failed = JSON.parse(localStorage.getItem(LS('failed')) || '[]');
-      failed.push({ event, ...extra, failedAt: new Date().toISOString() });
-      localStorage.setItem(LS('failed'), JSON.stringify(failed.slice(-20)));
-    } catch(x) {}
-  }
-};
+function track(data){
+  if(!SHEET_URL||SHEET_URL==="https://script.google.com/macros/s/AKfycbyNdCLxjacWS_ORQztlBKVk02N4f_g9ypipCgmw68LKba4MyIBsJrG6p-wJdF9e741w/exec")return;
+  fetch(SHEET_URL,{method:"POST",body:JSON.stringify(data)}).catch(()=>{});
+}
 
-const retryFailed = () => {
-  try {
-    const failed = JSON.parse(localStorage.getItem(LS('failed')) || '[]');
-    if (!failed.length) return;
-    failed.forEach(e => { new Image().src = GOOGLE_SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(e)); });
-    localStorage.removeItem(LS('failed'));
-  } catch(x) {}
-};
-
-// ─── BADGE ─────────────────────────────────────────────────
-const drawBadge = (name, score, pct, tier, tierEmoji) => {
-  const canvas = document.getElementById('badgeCanvas');
-  canvas.width = 1200; canvas.height = 675;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,1200,675);
-  const g = ctx.createLinearGradient(0,0,1200,675);
-  g.addColorStop(0,'#1a0a0c'); g.addColorStop(0.5,'#0f172a'); g.addColorStop(1,'#0a1628');
-  ctx.fillStyle = g; ctx.fillRect(0,0,1200,675);
-  ctx.strokeStyle = '#E23744'; ctx.lineWidth = 6;
-  ctx.strokeRect(20,20,1160,635);
-  ctx.fillStyle = '#E23744'; ctx.font = 'bold 28px Inter, sans-serif';
-  ctx.textAlign = 'center'; ctx.fillText('CXO SIMULABS · PM SIMULATION SERIES', 600, 70);
-  ctx.fillStyle = 'white'; ctx.font = 'bold 52px Playfair Display, serif';
-  ctx.fillText('Feature Prioritisation', 600, 155);
-  ctx.fillStyle = '#94a3b8'; ctx.font = '26px Inter, sans-serif';
-  ctx.fillText('Simulation 6 of 20 · Zomato Case Study', 600, 200);
-  ctx.fillStyle = '#E23744'; ctx.font = 'bold 120px Inter, sans-serif';
-  ctx.fillText(tierEmoji, 600, 340);
-  ctx.fillStyle = 'white'; ctx.font = 'bold 56px Inter, sans-serif';
-  ctx.fillText(tier, 600, 420);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = '36px Inter, sans-serif';
-  ctx.fillText(`Score: ${score}/100 pts · ${pct}%`, 600, 480);
-  ctx.fillStyle = '#64748b'; ctx.font = '22px Inter, sans-serif';
-  ctx.fillText(`Frameworks tested: RICE · MoSCoW · Kano · ICE · Value vs Effort`, 600, 540);
-  ctx.fillStyle = '#475569'; ctx.font = '20px Inter, sans-serif';
-  ctx.fillText(`© ${new Date().getFullYear()} Mohan Simham · linkedin.com/in/mohansimham`, 600, 600);
-  const link = document.createElement('a');
-  link.download = `zomato-pm-simulation-${pct}pct.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-};
-
-// ─── MAIN COMPONENT ────────────────────────────────────────
-function PMSimulation() {
-  const [email, setEmail] = useState('');
-  const [hasStarted, setHasStarted] = useState(false);
-  const [currentQ, setCurrentQ] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [selectedIdx, setSelectedIdx] = useState(null);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [hasAttempted, setHasAttempted] = useState(false);
-  const [startTime, setStartTime] = useState(null);
-  const [attemptCount, setAttemptCount] = useState(SEED);
-
-  // ── Refs ──────────────────────────────────────────────────
-  // topRef    → framework box: scroll here when a new question loads
-  // commentaryRef → commentary block: scroll here when answer is selected
-  const topRef = useRef(null);
-  const commentaryRef = useRef(null);
-
-  // ── Restore session on mount ──────────────────────────────
-  useEffect(() => {
-    const att = localStorage.getItem(LS('attempted'));
-    if (att) { setHasAttempted(true); }
-    const savedAnswers = JSON.parse(localStorage.getItem(LS('answers')) || 'null');
-    const savedQ = parseInt(localStorage.getItem(LS('question')) || '0');
-    const savedEmail = localStorage.getItem(LS('email')) || '';
-    const savedStart = localStorage.getItem(LS('started'));
-    if (savedStart && savedEmail && savedAnswers) {
-      setEmail(savedEmail);
-      setAnswers(savedAnswers);
-      setCurrentQ(savedQ);
-      setHasStarted(true);
-      setStartTime(parseInt(localStorage.getItem(LS('startTime')) || Date.now().toString()));
-      if (savedAnswers.length === QUESTIONS.length) { setShowResults(true); }
-    }
-    const stored = parseInt(localStorage.getItem(LS('attemptCount')) || '0');
-    setAttemptCount(SEED + stored);
-    retryFailed();
-  }, []);
-
-  // ── Scroll to framework box when a new question renders ───
-  // Fires after React commits: hasStarted (landing→Q1), currentQ (next question), showResults (results page)
-  useEffect(() => {
-    if (!hasStarted) return;
-    if (topRef.current) {
-      topRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    }
-  }, [hasStarted, currentQ, showResults]);
-
-  // ── Scroll to commentary when answer selected ─────────────
-  // Fires after React commits the feedback render.
-  // 'instant' so the user lands exactly on the commentary without drift.
-  useEffect(() => {
-    if (!showFeedback) return;
-    if (commentaryRef.current) {
-      commentaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [showFeedback]);
-
-  const totalScore = answers.reduce((s, a) => s + a.points, 0);
-  const maxScore = QUESTIONS.length * 10;
-  const pct = Math.round((totalScore / maxScore) * 100);
-  const tierData = getTier(pct);
-
-  const handleStart = () => {
-    if (!email.trim() || !email.includes('@')) return;
-    const cnt = parseInt(localStorage.getItem(LS('attemptCount')) || '0') + 1;
-    localStorage.setItem(LS('attemptCount'), cnt.toString());
-    localStorage.setItem(LS('email'), email);
-    localStorage.setItem(LS('started'), '1');
-    const now = Date.now();
-    localStorage.setItem(LS('startTime'), now.toString());
-    setStartTime(now);
-    setHasStarted(true); // → useEffect scrolls to topRef (framework box)
-    track('STARTED', { email, device: getDevice(), attemptNumber: 1 });
-    retryFailed();
-  };
-
-  // Clicking an answer IMMEDIATELY shows feedback — no Submit button.
-  // This triggers useEffect([showFeedback]) → scrolls to commentaryRef.
-  const handleSelect = (idx) => {
-    if (showFeedback) return; // already answered, ignore further clicks
-    const q = QUESTIONS[currentQ];
-    const chosen = q.answers[idx];
-    const newAnswers = [...answers, { questionId: q.id, selectedIdx: idx, points: chosen.points }];
-    setSelectedIdx(idx);
-    setAnswers(newAnswers);
-    setShowFeedback(true); // → useEffect scrolls to commentaryRef
-    localStorage.setItem(LS('answers'), JSON.stringify(newAnswers));
-    if ((currentQ + 1) % 3 === 0) {
-      track('PROGRESS', { email, questionNumber: currentQ + 1, totalQuestions: QUESTIONS.length, device: getDevice() });
-    }
-  };
-
-  const handleNext = () => {
-    if (currentQ + 1 >= QUESTIONS.length) {
-      const timeTaken = startTime ? Math.round((Date.now() - startTime) / 60000) : '';
-      const finalScore = answers.reduce((s, a) => s + a.points, 0);
-      const finalPct = Math.round((finalScore / maxScore) * 100);
-      const finalTier = getTier(finalPct).tier;
-      localStorage.setItem(LS('attempted'), '1');
-      setShowResults(true); // → useEffect scrolls to top
-      track('COMPLETED', { email, score: finalScore, percentage: finalPct, tier: finalTier, timeTaken, device: getDevice() });
-    } else {
-      setShowFeedback(false);
-      setSelectedIdx(null);
-      setCurrentQ(currentQ + 1); // → useEffect scrolls to topRef (framework box)
-      localStorage.setItem(LS('question'), (currentQ + 1).toString());
-    }
-  };
-
-  const handleBadge = () => {
-    drawBadge(email, totalScore, pct, tierData.tier, tierData.emoji);
-    track('DOWNLOADED_BADGE', { email, score: totalScore, percentage: pct, tier: tierData.tier, device: getDevice() });
-  };
-
-  const handleShare = () => {
-    const text = `🎯 Just completed Week 6 of the #PMSimulation Series by Mohan Simham!\n\nChallenge: Zomato's Feature Prioritisation — 16 years of real decisions using RICE, MoSCoW, Kano Model, ICE and Value vs Effort.\n\nMy result: ${pct}% | ${tierData.tier} ${tierData.emoji}\n\nThink you can do better? Try it 👇\n\n#ProductManagement #FeaturePrioritization #PMLeadership #Zomato #CXOSimulabs`;
-    navigator.clipboard.writeText(text).catch(() => {});
-    window.open('https://www.linkedin.com/feed/', '_blank');
-    track('SHARED_LINKEDIN', { email, score: totalScore, percentage: pct, tier: tierData.tier, device: getDevice() });
-  };
-
-  const fw = FRAMEWORKS[QUESTIONS[currentQ]?.framework];
-  const progressPct = ((currentQ + (showFeedback ? 1 : 0)) / QUESTIONS.length) * 100;
-  const currentPoints = answers.reduce((s, a) => s + a.points, 0);
-
-  // ── ALREADY ATTEMPTED ──
-  if (hasAttempted && !hasStarted) {
-    return h('div', { className: 'min-h-screen flex items-center justify-center bg-gray-50 p-4' },
-      h('div', { className: 'bg-white rounded-2xl shadow-xl p-10 max-w-md w-full text-center' },
-        h('div', { className: 'text-6xl mb-4' }, '🔒'),
-        h('h2', { className: 'text-2xl font-bold text-gray-800 mb-3' }, 'Simulation Already Completed'),
-        h('p', { className: 'text-gray-500 mb-6' }, 'Each participant gets one attempt to maintain assessment integrity.'),
-        h('p', { className: 'text-sm text-gray-400' }, 'Explore other simulations in the series below.'),
-        h('div', { className: 'mt-8 space-y-3' },
-          CATALOG.map(s => h('a', { key: s.week, href: s.url, target: '_blank',
-            className: 'block p-3 rounded-lg border border-gray-200 hover:border-red-300 text-sm text-left flex items-center gap-3 transition-all' },
-            h('span', { className: 'text-2xl' }, s.emoji),
-            h('div', null,
-              h('div', { className: 'font-semibold text-gray-700' }, `Sim ${s.week} — ${s.company}`),
-              h('div', { className: 'text-gray-400' }, s.topic)
-            )
-          ))
-        )
-      )
-    );
-  }
-
-  // ── LANDING PAGE ──
-  if (!hasStarted) {
-    return h('div', { className: 'min-h-screen bg-gray-50' },
-      h('div', { className: 'bg-gradient-to-br from-gray-900 via-red-950 to-gray-900 text-white py-16 px-4' },
-        h('div', { className: 'max-w-3xl mx-auto text-center' },
-          h('div', { className: 'inline-block bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-full mb-6' }, 'SIMULATION 6 OF 20 · WEEK 6'),
-          h('h1', { className: 'text-4xl md:text-5xl font-bold mb-4 font-display' }, 'Feature Prioritisation'),
-          h('p', { className: 'text-xl text-gray-300 mb-2' }, 'You\'re Zomato\'s Product Manager. 16 years of real decisions.'),
-          h('p', { className: 'text-lg text-gray-400 mb-8' }, '₹4,447 crore acquisitions. 35 million users. One framework at a time.'),
-          h('div', { className: 'grid grid-cols-2 md:grid-cols-4 gap-4 mb-10' },
-            [['10', 'Decisions'], ['100', 'Points'], ['5', 'Frameworks'], ['1', 'Attempt']].map(([v, l]) =>
-              h('div', { key: l, className: 'bg-white/10 rounded-xl p-4' },
-                h('div', { className: 'text-3xl font-bold text-red-400' }, v),
-                h('div', { className: 'text-gray-400 text-sm' }, l)
-              )
-            )
-          ),
-          h('div', { className: 'bg-white/5 rounded-xl p-5 mb-8 text-left' },
-            h('p', { className: 'text-gray-300 text-sm font-semibold mb-3 uppercase tracking-wide' }, 'Frameworks You\'ll Master'),
-            h('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-2' },
-              Object.values(FRAMEWORKS).map(f =>
-                h('div', { key: f.name, className: 'flex items-center gap-2 text-sm text-gray-300' },
-                  h('span', { className: 'w-2 h-2 rounded-full bg-red-400 flex-shrink-0' }),
-                  f.name
-                )
-              )
-            )
-          ),
-          h('div', { className: 'bg-white/5 backdrop-blur rounded-xl p-6 max-w-md mx-auto' },
-            h('div', { className: 'flex items-center gap-2 mb-1' },
-              h('span', { className: 'pulse-dot w-2 h-2 bg-green-400 rounded-full' }),
-              h('span', { className: 'text-green-400 text-sm font-semibold' }, `🔥 Taken by ${attemptCount}+ professionals`)
-            ),
-            h('p', { className: 'text-gray-400 text-xs mb-4' }, 'One attempt per person · Results tracked'),
-            h('input', {
-              type: 'email', placeholder: 'Enter your email to begin',
-              value: email, onChange: e => setEmail(e.target.value),
-              onKeyDown: e => e.key === 'Enter' && handleStart(),
-              className: 'w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-red-400 mb-3'
-            }),
-            h('button', { onClick: handleStart, disabled: !email.includes('@'),
-              className: 'w-full py-3 bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all text-lg' },
-              'Start Simulation →'
-            )
-          )
-        )
-      ),
-      h('div', { className: 'max-w-3xl mx-auto px-4 py-12' },
-        h('h3', { className: 'text-lg font-bold text-gray-700 mb-4' }, 'Also in the Series'),
-        h('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-3' },
-          CATALOG.map(s => h('a', { key: s.week, href: s.url, target: '_blank',
-            className: 'sim-card bg-white shadow-sm p-4 flex items-center gap-4 rounded-xl hover:shadow-md transition-all' },
-            h('div', { className: 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl', style: { background: s.color + '22' } }, s.emoji),
-            h('div', null,
-              h('div', { className: 'font-bold text-gray-800 text-sm' }, `Sim ${s.week} — ${s.company}`),
-              h('div', { className: 'text-gray-400 text-xs' }, s.topic)
-            )
-          ))
-        ),
-        h('p', { className: 'text-center text-gray-400 text-sm mt-8' },
-          'Created by ', h('a', { href: 'https://linkedin.com/in/mohansimham', target: '_blank', className: 'text-red-500 font-semibold' }, 'Mohan Simham'),
-          ' | © 2025 CXO Simulabs. All Rights Reserved.'
-        )
-      )
-    );
-  }
-
-  // ── RESULTS PAGE ──
-  if (showResults) {
-    const groupedByFramework = QUESTIONS.reduce((acc, q, i) => {
-      const ans = answers[i];
-      if (!acc[q.framework]) acc[q.framework] = { total: 0, max: 0, name: FRAMEWORKS[q.framework].name };
-      acc[q.framework].total += (ans?.points || 0);
-      acc[q.framework].max += 10;
-      return acc;
-    }, {});
-    return h('div', { className: 'min-h-screen bg-gray-50' },
-      h('div', { className: 'bg-gradient-to-br from-gray-900 to-red-950 text-white py-16 px-4' },
-        h('div', { className: 'max-w-2xl mx-auto text-center' },
-          h('div', { className: 'text-8xl mb-4' }, tierData.emoji),
-          h('h1', { className: 'text-4xl font-bold font-display mb-2' }, tierData.tier),
-          h('p', { className: 'text-gray-300 mb-6' }, tierData.desc),
-          h('div', { className: 'text-7xl font-bold text-red-400 mb-2' }, `${pct}%`),
-          h('p', { className: 'text-gray-400 text-lg' }, `${totalScore} / ${maxScore} points`),
-          h('div', { className: 'flex gap-3 justify-center mt-8 flex-wrap' },
-            h('button', { onClick: handleBadge, className: 'badge-btn' }, '📥 Download Badge'),
-            h('button', { onClick: handleShare, className: 'linkedin-btn' }, '🔗 Share on LinkedIn')
-          )
-        )
-      ),
-      h('div', { className: 'max-w-3xl mx-auto px-4 py-10' },
-        h('h2', { className: 'text-xl font-bold text-gray-800 mb-4' }, 'Your Framework Performance'),
-        h('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-4 mb-10' },
-          Object.entries(groupedByFramework).map(([key, val]) => {
-            const fPct = Math.round((val.total / val.max) * 100);
-            const fw = FRAMEWORKS[key];
-            return h('div', { key, className: 'bg-white rounded-xl shadow-sm p-5 border border-gray-100' },
-              h('div', { className: 'flex justify-between items-center mb-2' },
-                h('span', { className: 'font-semibold text-gray-700 text-sm' }, val.name),
-                h('span', { className: 'font-bold text-sm', style: { color: fw.color } }, `${fPct}%`)
-              ),
-              h('div', { className: 'h-2 bg-gray-100 rounded-full overflow-hidden' },
-                h('div', { className: 'h-2 rounded-full transition-all', style: { width: `${fPct}%`, background: fw.color } })
-              )
-            );
-          })
-        ),
-        h('h2', { className: 'text-xl font-bold text-gray-800 mb-4' }, 'Question Review'),
-        QUESTIONS.map((q, i) => {
-          const ans = answers[i];
-          const correct = q.answers.findIndex(a => a.points === 10);
-          const chosen = ans?.selectedIdx ?? -1;
-          const isCorrect = chosen === correct;
-          return h('div', { key: q.id, className: 'bg-white rounded-xl shadow-sm p-6 mb-4 border border-gray-100' },
-            h('div', { className: 'flex items-start gap-3 mb-3' },
-              h('span', { className: `text-xl ${isCorrect ? 'text-green-500' : 'text-red-500'}` }, isCorrect ? '✓' : '✗'),
-              h('div', null,
-                h('div', { className: 'text-xs text-gray-400 font-semibold uppercase mb-1' }, `Q${q.id} · ${q.year} · ${FRAMEWORKS[q.framework].name}`),
-                h('p', { className: 'text-gray-700 text-sm font-medium' }, q.question),
-                h('div', { className: 'mt-2 text-sm' },
-                  h('span', { className: 'text-gray-500' }, 'Your answer: '),
-                  h('span', { className: isCorrect ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold' },
-                    ans ? q.answers[chosen].text.substring(0, 80) + '…' : '—'
-                  )
-                ),
-                h('div', { className: 'mt-1 text-sm' },
-                  h('span', { className: 'font-bold text-gray-600' }, `${ans?.points || 0}/10 pts`)
-                )
-              )
-            )
-          );
-        }),
-        h('div', { className: 'bg-gray-800 rounded-2xl p-8 mt-8 text-center text-white' },
-          h('h3', { className: 'text-xl font-bold mb-2' }, '🎯 Want to Binge the Series?'),
-          h('p', { className: 'text-gray-400 text-sm mb-6' }, 'Each simulation tests a different set of PM frameworks. Build your complete prioritisation toolkit.'),
-          h('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-3' },
-            CATALOG.map(s => h('a', { key: s.week, href: s.url, target: '_blank',
-              className: 'flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-all' },
-              h('span', { className: 'text-2xl' }, s.emoji),
-              h('div', { className: 'text-left' },
-                h('div', { className: 'font-bold text-sm' }, `Sim ${s.week} — ${s.company}`),
-                h('div', { className: 'text-gray-400 text-xs' }, s.topic)
-              )
-            ))
-          )
-        ),
-        h('p', { className: 'text-center text-gray-400 text-sm mt-8' },
-          'Created by ', h('a', { href: 'https://linkedin.com/in/mohansimham', target: '_blank', className: 'text-red-500 font-semibold' }, 'Mohan Simham'),
-          ' | © 2025 CXO Simulabs. All Rights Reserved.'
-        )
-      )
-    );
-  }
-
-  // ── QUESTION PAGE ──
-  const q = QUESTIONS[currentQ];
-  const fwData = FRAMEWORKS[q.framework];
-  const correctIdx = q.answers.findIndex(a => a.points === 10);
-
-  return h('div', { className: 'min-h-screen bg-gray-50' },
-    h('div', { className: 'bg-gray-900 text-white px-4 py-3 sticky top-0 z-10' },
-      h('div', { className: 'max-w-3xl mx-auto' },
-        h('div', { className: 'flex justify-between items-center mb-2 text-sm' },
-          h('span', { className: 'text-gray-400 font-medium' }, `Question ${currentQ + 1} of ${QUESTIONS.length}`),
-          h('span', { className: 'text-red-400 font-bold' }, `${currentPoints} pts`)
-        ),
-        h('div', { className: 'h-2 bg-gray-700 rounded-full overflow-hidden' },
-          h('div', { className: 'progress-bar-fill h-2 rounded-full', style: { width: `${progressPct}%` } })
-        )
-      )
+function BannerHeader(){
+  return h('div',{className:'banner-header'},
+    h('div',{className:'google-dots'},
+      h('div',{className:'g-dot',style:{background:'#4285F4'}}),
+      h('div',{className:'g-dot',style:{background:'#EA4335'}}),
+      h('div',{className:'g-dot',style:{background:'#FBBC05'}}),
+      h('div',{className:'g-dot',style:{background:'34A853'.startsWith('#')?'#34A853':'#34A853'}})
     ),
-    h('div', { className: 'max-w-3xl mx-auto px-4 py-6' },
+    h('p',{style:{color:'#94a3b8',fontSize:'11px',letterSpacing:'2px',textTransform:'uppercase',margin:0}},
+      'CXO Simulabs · PM Simulation Series')
+  );
+}
 
-      // ── topRef lives here — framework box is the first thing seen on each new question ──
-      h('div', { ref: topRef, className: 'framework-box mb-6' },
-        h('div', { className: 'text-xs font-bold uppercase tracking-widest mb-1', style: { color: fwData.color } }, '⚡ Framework in Focus'),
-        h('div', { className: 'font-bold text-white text-lg mb-1' }, fwData.name),
-        h('div', { className: 'text-red-300 text-sm font-mono mb-2' }, fwData.formula),
-        h('div', { className: 'text-gray-300 text-sm' }, fwData.description)
-      ),
+function PMSimulation(){
+  const [stage,setStage] = useState('landing');
+  const [email,setEmail] = useState('');
+  const [name,setName] = useState('');
+  const [currentQ,setCurrentQ] = useState(0);
+  const [answers,setAnswers] = useState([]);
+  const [selected,setSelected] = useState(null);
+  const [showResult,setShowResult] = useState(false);
 
-      h('div', { className: 'bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6' },
-        h('div', { className: 'flex items-center gap-2 mb-3' },
-          h('span', { className: 'bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full' }, q.year),
-          h('span', { className: 'text-gray-400 text-xs' }, `Simulation ${q.id}/10`)
+  const handleStart = useCallback(()=>{
+    if(!email.trim())return;
+    track({event:'started',email,name,week:WEEK,company:COMPANY,timestamp:new Date().toISOString()});
+    setStage('quiz');
+  },[email,name]);
+
+  const handleSelect = useCallback((idx)=>{
+    if(showResult)return;
+    setSelected(idx);
+  },[showResult]);
+
+  const handleNext = useCallback(()=>{
+    if(selected===null)return;
+    const q = QUESTIONS[currentQ];
+    const correct = q.answers[selected].correct===true;
+    const newAnswers = [...answers,{qIdx:currentQ,selected,correct}];
+    setAnswers(newAnswers);
+    track({event:'answer',email,question:currentQ+1,selected,correct,week:WEEK});
+    if(!showResult){
+      setShowResult(true);
+      return;
+    }
+    if(currentQ+1 < QUESTIONS.length){
+      setCurrentQ(currentQ+1);
+      setSelected(null);
+      setShowResult(false);
+    } else {
+      const score = Math.round((newAnswers.filter(a=>a.correct).length/QUESTIONS.length)*100);
+      track({event:'completed',email,name,score,week:WEEK,company:COMPANY,timestamp:new Date().toISOString()});
+      setStage('results');
+    }
+  },[selected,showResult,currentQ,answers,email,name]);
+
+  // LANDING
+  if(stage==='landing'){
+    return h('div',{className:'min-h-screen',style:{background:'linear-gradient(135deg,#f8faff 0%,#e8f0fe 100%)'}},
+      h(BannerHeader),
+      h('div',{className:'max-w-2xl mx-auto px-4 py-8'},
+        h('div',{className:'text-center mb-8'},
+          h('div',{className:'inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-4'},
+            '🗓 Week 6 of 10  ·  Feature Prioritization'),
+          h('h1',{className:'text-4xl font-extrabold text-slate-900 mb-3'},
+            h('span',{style:{color:'#4285F4'}},'G'),
+            h('span',{style:{color:'#EA4335'}},'o'),
+            h('span',{style:{color:'#FBBC05'}},'o'),
+            h('span',{style:{color:'#34A853'}},'g'),
+            h('span',{style:{color:'#4285F4'}},'l'),
+            h('span',{style:{color:'#EA4335'}},'e'),
+            ' PM Simulation'
+          ),
+          h('p',{className:'text-xl text-slate-600 font-medium mb-2'},'Feature Prioritization Frameworks'),
+          h('p',{className:'text-slate-500'},'10 real Google decisions · RICE · MoSCoW · Kano · Value vs Effort')
         ),
-        h('div', { className: 'text-gray-700 text-sm leading-relaxed whitespace-pre-line mb-4' },
-          q.scenario.split('\n\n').map((para, i) => h('p', { key: i, className: 'mb-3' }, para))
+        h('div',{className:'bg-white rounded-2xl shadow-lg p-6 mb-6'},
+          h('div',{className:'grid grid-cols-2 gap-4 mb-6'},
+            ...[['🎯','10 Real Scenarios','Gmail, Maps, Meet, Bard'],['⏱','~15 Minutes','One attempt only'],['🏆','100 Points','Framework mastery test'],['📊','Instant Results','Tier ranking + analysis']].map(([icon,title,sub])=>
+              h('div',{key:title,className:'text-center p-3 bg-slate-50 rounded-xl'},
+                h('div',{className:'text-2xl mb-1'},icon),
+                h('div',{className:'font-bold text-sm text-slate-800'},title),
+                h('div',{className:'text-xs text-slate-500'},sub)
+              )
+            )
+          ),
+          h('input',{type:'email',placeholder:'your@email.com',value:email,onChange:e=>setEmail(e.target.value),className:'w-full border-2 border-slate-200 rounded-xl px-4 py-3 mb-3 text-base focus:outline-none focus:border-blue-400',onKeyDown:e=>e.key==='Enter'&&handleStart()}),
+          h('input',{type:'text',placeholder:'Your name (optional)',value:name,onChange:e=>setName(e.target.value),className:'w-full border-2 border-slate-200 rounded-xl px-4 py-3 mb-4 text-base focus:outline-none focus:border-blue-400',onKeyDown:e=>e.key==='Enter'&&handleStart()}),
+          h('button',{onClick:handleStart,disabled:!email.trim(),className:'w-full py-4 rounded-xl font-bold text-lg transition '+(email.trim()?'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer':'bg-slate-200 text-slate-400 cursor-not-allowed')},
+            'Start Simulation →')
         ),
-        h('div', { className: 'bg-red-50 border border-red-200 rounded-xl p-4' },
-          h('p', { className: 'font-bold text-gray-800 text-base' }, '❓ ' + q.question)
+        h('div',{className:'attribution-strip'},
+          h('div',{className:'w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold',style:{background:'#4285F4'}},'MS'),
+          h('div',{},
+            h('p',{className:'text-xs font-semibold text-slate-700'},'Mohan Simham'),
+            h('a',{href:'https://linkedin.com/in/mohansimham',target:'_blank',className:'text-xs text-blue-600 hover:underline'},'linkedin.com/in/mohansimham · CXO Simulabs')
+          )
         )
-      ),
+      )
+    );
+  }
 
-      // ── Answer options — clicking one immediately shows feedback ──
-      h('div', { className: 'mb-4' },
-        q.answers.map((ans, i) => {
-          let cls = 'option-card';
-          let indicator = null;
-          if (showFeedback) {
-            if (i === correctIdx) { cls += ' correct'; indicator = h('span', { className: 'text-green-600 font-bold text-sm ml-2' }, '✓ Best Answer'); }
-            else if (i === selectedIdx && i !== correctIdx) { cls += ' incorrect'; indicator = h('span', { className: 'text-red-500 font-bold text-sm ml-2' }, '✗'); }
-            else { cls += ' opacity-50'; }
-          } else {
-            if (i === selectedIdx) cls += ' selected';
-          }
-          return h('div', { key: i, className: cls, onClick: () => handleSelect(i) },
-            h('div', { className: 'flex items-start gap-3' },
-              h('div', { className: `w-6 h-6 rounded-full border-2 flex-shrink-0 mt-0.5 ${i === selectedIdx ? 'border-red-500 bg-red-500' : 'border-gray-300'}`, style: { minWidth: '24px' } }),
-              h('div', { className: 'flex-1' },
-                h('div', { className: 'font-semibold text-gray-800 text-sm leading-snug mb-1' }, ans.text.split('|')[0]),
-                ans.text.includes('|') && h('div', { className: 'text-gray-500 text-xs' }, ans.text.split('|').slice(1).join('|')),
-                indicator
+  // QUIZ
+  if(stage==='quiz'){
+    const q = QUESTIONS[currentQ];
+    const progress = (currentQ/QUESTIONS.length)*100;
+    return h('div',{className:'min-h-screen',style:{background:'linear-gradient(135deg,#f8faff 0%,#e8f0fe 100%)'}},
+      h(BannerHeader),
+      h('div',{className:'max-w-2xl mx-auto px-4 py-6 slide-in'},
+        // Progress
+        h('div',{className:'flex items-center justify-between mb-2'},
+          h('span',{className:'text-sm font-semibold text-slate-500'},'Question '+( currentQ+1)+' of '+TOTAL_Q),
+          h('span',{className:'text-sm font-bold text-blue-600'},answers.filter(a=>a.correct).length+' correct')
+        ),
+        h('div',{className:'progress-bar mb-6'},h('div',{className:'progress-fill',style:{width:progress+'%'}})),
+        // Question card
+        h('div',{className:'bg-white rounded-2xl shadow-lg p-6 mb-4'},
+          h('div',{className:'flex items-center gap-3 mb-4'},
+            h('span',{className:'framework-badge '+q.fbClass},q.framework),
+            h('span',{className:'text-sm text-slate-400 font-medium'},'📅 '+q.year)
+          ),
+          h('div',{className:'bg-slate-50 rounded-xl p-4 mb-4'},
+            h('p',{className:'text-sm text-slate-600 leading-relaxed'},q.context)
+          ),
+          h('p',{className:'font-bold text-slate-900 text-base mb-4'},q.question),
+          h('div',{className:'space-y-3'},
+            ...q.answers.map((ans,idx)=>
+              h('div',{key:idx,
+                className:'option-row'+(selected===idx?' selected':'')+(showResult&&ans.correct?' border-green-500 bg-green-50':'')+(showResult&&selected===idx&&!ans.correct?' border-red-400 bg-red-50':''),
+                onClick:()=>handleSelect(idx)},
+                h('div',{className:'option-radio'+(selected===idx?' selected':''),style:{marginTop:'2px'}}),
+                h('div',{className:'flex-1'},
+                  h('div',{className:'option-label'},ans.label),
+                  showResult&&h('div',{className:'option-reason mt-1'},ans.reason)
+                ),
+                showResult&&ans.correct&&h('span',{className:'text-green-600 font-bold text-lg'},'✓'),
+                showResult&&selected===idx&&!ans.correct&&h('span',{className:'text-red-500 font-bold text-lg'},'✗')
+              )
+            )
+          ),
+          showResult&&h('div',{className:'mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl'},
+            h('p',{className:'text-xs font-bold text-blue-700 uppercase tracking-wide mb-1'},'What actually happened'),
+            h('p',{className:'text-sm text-slate-700 leading-relaxed'},q.outcome),
+            h('p',{className:'text-xs text-slate-400 mt-2'},'Source: '+q.source)
+          )
+        ),
+        h('div',{className:'attribution-strip'},
+          h('div',{className:'w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold',style:{background:'#4285F4'}},'MS'),
+          h('div',{},
+            h('p',{className:'text-xs font-semibold text-slate-700'},'Mohan Simham'),
+            h('a',{href:'https://linkedin.com/in/mohansimham',target:'_blank',className:'text-xs text-blue-600 hover:underline'},'linkedin.com/in/mohansimham · CXO Simulabs')
+          )
+        ),
+        h('button',{onClick:handleNext,disabled:selected===null,
+          className:'w-full mt-4 py-4 rounded-xl font-bold text-base transition '+(selected!==null?'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer':'bg-slate-200 text-slate-400 cursor-not-allowed')},
+          !showResult?'Submit Answer →':currentQ+1<QUESTIONS.length?'Next Challenge →':'See My Results →'
+        )
+      )
+    );
+  }
+
+  // RESULTS
+  const score = Math.round((answers.filter(a=>a.correct).length/QUESTIONS.length)*100);
+  const tier = getTier(score);
+  const correct = answers.filter(a=>a.correct).length;
+  const linkedInText = encodeURIComponent(`I just scored ${score}/100 on the Google Feature Prioritization PM Simulation!\n\nTier: ${tier.label} 🎯\n\nTested on real Google decisions: RICE, MoSCoW, Kano Model, Value vs Effort.\n\nTry it: https://cxosimulab.com/week6\n\n#ProductManagement #GooglePM #FeaturePrioritization #CXOSimulabs`);
+  
+  return h('div',{className:'min-h-screen',style:{background:'linear-gradient(135deg,#f8faff 0%,#e8f0fe 100%)'}},
+    h(BannerHeader),
+    h('div',{className:'max-w-2xl mx-auto px-4 py-8'},
+      h('div',{className:'bg-white rounded-2xl shadow-xl p-8 mb-6 text-center'},
+        h('div',{className:'text-6xl font-extrabold mb-2',style:{color:tier.color}},score),
+        h('div',{className:'text-lg font-bold text-slate-800 mb-1'},'out of 100 points'),
+        h('div',{className:'inline-block px-6 py-2 rounded-full text-white font-bold text-lg mb-3',style:{background:tier.color}},tier.label),
+        h('p',{className:'text-slate-600 mb-4'},tier.desc),
+        h('div',{className:'flex justify-center gap-8 mb-4'},
+          h('div',{className:'text-center'},h('div',{className:'text-2xl font-bold text-green-600'},correct),h('div',{className:'text-xs text-slate-500'},'Correct')),
+          h('div',{className:'text-center'},h('div',{className:'text-2xl font-bold text-red-500'},TOTAL_Q-correct),h('div',{className:'text-xs text-slate-500'},'Incorrect')),
+          h('div',{className:'text-center'},h('div',{className:'text-2xl font-bold text-blue-600'},score+'%'),h('div',{className:'text-xs text-slate-500'},'Accuracy'))
+        ),
+        h('a',{href:'https://linkedin.com/sharing/share-offsite/?text='+linkedInText,target:'_blank',
+          className:'w-full block py-3 rounded-xl font-bold text-white text-center',style:{background:'#0077B5'}},
+          '📤 Share on LinkedIn')
+      ),
+      // Per-question breakdown
+      h('div',{className:'bg-white rounded-2xl shadow-lg p-6 mb-6'},
+        h('h3',{className:'font-bold text-slate-800 text-lg mb-4'},'Question Breakdown'),
+        ...QUESTIONS.map((q,i)=>{
+          const a = answers[i];
+          const isCorrect = a&&a.correct;
+          return h('div',{key:i,className:'result-card '+(isCorrect?'result-correct':'result-incorrect')},
+            h('div',{className:'flex items-start justify-between gap-3'},
+              h('div',{className:'flex-1'},
+                h('div',{className:'flex items-center gap-2 mb-1'},
+                  h('span',{className:'framework-badge '+q.fbClass},q.framework),
+                  h('span',{className:'text-xs text-slate-500'},'Q'+( i+1)+' · '+q.year)
+                ),
+                h('p',{className:'text-sm font-semibold text-slate-800 mb-1'},q.question.substring(0,90)+'...'),
+                a&&h('p',{className:'text-xs text-slate-600'},'You chose: '+q.answers[a.selected].label.substring(0,60)+'...'),
+                !isCorrect&&h('p',{className:'text-xs text-green-700 mt-1'},'✓ Correct: '+q.answers.find(x=>x.correct).label.substring(0,60)+'...')
               ),
-              showFeedback && h('span', { className: `text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 ${ans.points === 10 ? 'bg-green-100 text-green-700' : ans.points >= 7 ? 'bg-blue-100 text-blue-700' : ans.points >= 4 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}` }, `+${ans.points}pts`)
+              h('span',{className:'text-xl font-bold '+(isCorrect?'text-green-600':'text-red-500')},isCorrect?'✓':'✗')
             )
           );
         })
       ),
-
-      // ── commentaryRef lives here — scrolled into view after answer selected ──
-      // Shows feedback for selected answer + correct answer explanation.
-      showFeedback && h('div', { ref: commentaryRef, className: 'mb-6' },
-        // Selected answer feedback
-        h('div', { className: `rounded-2xl p-5 mb-4 border ${selectedIdx === correctIdx ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}` },
-          h('div', { className: 'flex items-center gap-2 mb-3' },
-            h('span', { className: 'text-xl' }, selectedIdx === correctIdx ? '✅' : '❌'),
-            h('span', { className: 'font-bold text-gray-800' }, selectedIdx === correctIdx ? 'Correct — ' + q.answers[selectedIdx].text.split('|')[0] : 'Your answer: ' + q.answers[selectedIdx].text.split('|')[0])
-          ),
-          h('p', { className: 'text-gray-700 text-sm leading-relaxed' }, q.answers[selectedIdx].feedback)
-        ),
-        // Best answer explanation (only show if they got it wrong)
-        selectedIdx !== correctIdx && h('div', { className: 'bg-green-50 border border-green-200 rounded-2xl p-5 mb-4' },
-          h('div', { className: 'flex items-center gap-2 mb-3' },
-            h('span', { className: 'text-xl' }, '🏆'),
-            h('span', { className: 'font-bold text-gray-800' }, 'Best Answer: ' + q.answers[correctIdx].text.split('|')[0])
-          ),
-          h('p', { className: 'text-gray-700 text-sm leading-relaxed' }, q.answers[correctIdx].feedback)
-        ),
-        h('button', { onClick: handleNext,
-          className: 'w-full py-4 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl text-lg transition-all' },
-          currentQ + 1 < QUESTIONS.length ? 'Next Question →' : 'View My Results 🏆'
+      h('div',{className:'attribution-strip'},
+        h('div',{className:'w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold',style:{background:'#4285F4'}},'MS'),
+        h('div',{},
+          h('p',{className:'text-xs font-semibold text-slate-700'},'Mohan Simham'),
+          h('a',{href:'https://linkedin.com/in/mohansimham',target:'_blank',className:'text-xs text-blue-600 hover:underline'},'linkedin.com/in/mohansimham · CXO Simulabs')
         )
-      ),
-
-      // ── Prompt before answering ──
-      !showFeedback && h('p', { className: 'text-center text-gray-400 text-sm mt-2' }, '👆 Click an answer to continue')
+      )
     )
   );
 }
